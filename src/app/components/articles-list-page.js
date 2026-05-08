@@ -105,20 +105,35 @@ export default function ArticlesListPage({ onArticleClick }) {
 
   const getCategoryLabel = (category) => {
     const labels = {
-      actualites: 'Actualités',
-      litterature: 'Littérature',
-      education: 'Éducation',
-      science: 'Science',
-      culture: 'Culture',
-      religion: 'Religion',
-      histoire: 'Histoire',
-      autre: 'Autre',
+      societe: 'Société',
+      politique: 'Politique',
       economie: 'Économie',
       sport: 'Sport',
       sante: 'Santé',
-      politique: 'Politique',
-      societe: 'Société',
+      education: 'Éducation',
+      science: 'Science',
+      histoire: 'Histoire',
+      culture: 'Culture',
+      religion: 'Religion',
+      actualites: 'Actualités',
+      litterature: 'Littérature',
+      autre: 'Autre',
     }
+    // const labels = {
+    //   actualites: 'Actualités',
+    //   litterature: 'Littérature',
+    //   education: 'Éducation',
+    //   science: 'Science',
+    //   culture: 'Culture',
+    //   religion: 'Religion',
+    //   histoire: 'Histoire',
+    //   autre: 'Autre',
+    //   economie: 'Économie',
+    //   sport: 'Sport',
+    //   sante: 'Santé',
+    //   politique: 'Politique',
+    //   societe: 'Société',
+    // }
     return labels[category] || category
   }
 

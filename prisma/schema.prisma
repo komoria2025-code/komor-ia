@@ -52,19 +52,19 @@ enum ArticleLanguage {
 }
 
 enum ArticleCategory {
-  actualites // news
-  litterature // literature
-  education // education
-  science // science
-  culture // culture
-  religion // religion
-  histoire // history
-  autre // other
+  societe
+  politique // politics
   economie // economy
   sport // sport
   sante // health
-  politique // politics
-  societe
+  education // education
+  science // science
+  histoire // history
+  culture // culture
+  religion // religion
+  actualites // news
+  litterature // literature
+  autre // other
 }
 
 // ============================================
