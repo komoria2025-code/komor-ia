@@ -174,7 +174,7 @@ export default function ArticlesListPage({ onArticleClick }) {
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
-              <option value="all">Toutes</option>
+              {/* <option value="all">Toutes</option>
               <option value="actualites">Actualités</option>
               <option value="litterature">Littérature</option>
               <option value="education">Éducation</option>
@@ -186,7 +186,21 @@ export default function ArticlesListPage({ onArticleClick }) {
               <option value="sport">Sport</option>
               <option value="sante">Santé</option>
               <option value="politique">Politique</option>
+              <option value="societe">Société</option> */}
+              <option value="all">Toutes</option>
               <option value="societe">Société</option>
+              <option value="politique">Politique</option>
+              <option value="economie">Économie</option>
+              <option value="sport">Sport</option>
+              <option value="sante">Santé</option>
+              <option value="education">Éducation</option>
+              <option value="science">Science</option>
+              <option value="histoire">Histoire</option>
+              <option value="culture">Culture</option>
+              <option value="religion">Religion</option>
+              <option value="actualites">Actualités</option>
+              <option value="litterature">Littérature</option>
+              <option value="autre">Autre</option>
             </select>
           </div>
         </div>
