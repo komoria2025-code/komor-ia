@@ -64,7 +64,7 @@ export default function HomePage() {
             <div className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-full mb-8 shadow-sm">
               <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm font-medium text-gray-700">
-                Fondée en Août 2024 · Comores 🇰🇲
+                Fondée en Août 2025 · Comores 🇰🇲
               </span>
             </div>
 
