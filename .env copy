@@ -1,0 +1,28 @@
+# Environment variables declared in this file are automatically made available to Prisma.
+
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+# The following `prisma+postgres` URL is similar to the URL produced by running a local Prisma Postgres
+
+# server with the `prisma dev` CLI command, when not choosing any non-default ports or settings. The API key, unlike the
+
+# one found in a remote Prisma Postgres URL, does not contain any sensitive information.
+
+# DATABASE_URL="mysql://avnadmin:AVNS_pI2u-_Lv3k0Xd5IJFrS@mysql-30d9a589-mohamedsoilahoudine328-ebe4.g.aivencloud.com:22146/defaultdb?ssl-mode=REQUIRED"
+
+DATABASE*URL="mysql://avnadmin:AVNS*-KrnilhcJ53y_L7duAs@mysql-2d79d24c-komor-ce7c.e.aivencloud.com:19002/defaultdb?ssl-mode=REQUIRED"
+
+NEXTAUTH_URL="https://komor-ia.com"
+NEXTAUTH_SECRET="P5aCn2Z26SBZTCDXNQUJSVSFDQotr9Qow7L+B89gtyuI+SPGOgKv4="
+
+<!-- GOOGLE_CLIENT_ID="840308359710-ifpufgsbpocveb14sdb8nsil152uog4r.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="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" -->
+
+GOOGLE_CLIENT_ID="840308359710-e1asd2mohigcksk17s8gurdma4njt16v.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="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"
+
+NEXT_PUBLIC_APP_URL="https://komor-ia.com"
