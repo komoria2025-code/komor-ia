@@ -20,7 +20,7 @@ export async function PATCH(req, { params }) {
       return NextResponse.json({ message: 'Non autorisé' }, { status: 403 })
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await req.json()
     const { role, name, email } = body
 
@@ -63,7 +63,7 @@ export async function DELETE(req, { params }) {
     if (parseInt(id) === user.id) {
       return NextResponse.json(
         { message: 'Vous ne pouvez pas vous supprimer vous-même' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 

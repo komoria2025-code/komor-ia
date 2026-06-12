@@ -23,6 +23,7 @@ export async function POST(req, { params }) {
       status = 'in_progress',
       notes = '',
       timeSpent = 0,
+      dialecte = 'shingazidja',
     } = body
 
     // Récupérer l'article
@@ -60,6 +61,7 @@ export async function POST(req, { params }) {
           status: progress === 100 ? 'completed' : status,
           notes,
           timeSpent,
+          dialecte,
         },
       })
 
@@ -87,6 +89,7 @@ export async function POST(req, { params }) {
           notes,
           timeSpent,
           isActive: true,
+          dialecte,
         },
       })
 

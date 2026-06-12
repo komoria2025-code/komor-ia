@@ -93,17 +93,29 @@ export default function UsersManagement() {
       developer: 'bg-purple-100 text-purple-700',
       translator: 'bg-blue-100 text-blue-700',
       journaliste: 'bg-green-100 text-green-700',
+      linguiste: 'bg-indigo-100 text-indigo-700',
       user: 'bg-gray-100 text-gray-700',
     }
     return badges[role] || badges.user
   }
 
+  // const getRoleLabel = (role) => {
+  //   const labels = {
+  //     admin: 'Administrateur',
+  //     developer: 'Développeur',
+  //     translator: 'Traducteur',
+  //     journaliste: 'Journaliste',
+  //     user: 'Utilisateur',
+  //   }
+  //   return labels[role] || role
+  // }
   const getRoleLabel = (role) => {
     const labels = {
       admin: 'Administrateur',
       developer: 'Développeur',
       translator: 'Traducteur',
       journaliste: 'Journaliste',
+      linguiste: 'Linguiste',
       user: 'Utilisateur',
     }
     return labels[role] || role
@@ -154,6 +166,7 @@ export default function UsersManagement() {
             <option value="translator">Traducteurs</option>
             <option value="journaliste">Journalistes</option>
             <option value="user">Utilisateurs</option>
+            <option value="linguiste">Linguiste</option>
           </select>
         </div>
       </div>
@@ -232,6 +245,7 @@ export default function UsersManagement() {
                         <option value="developer">Développeur</option>
                         <option value="translator">Traducteur</option>
                         <option value="journaliste">Journaliste</option>
+                        <option value="linguiste">Linguiste</option>
                         <option value="admin">Admin</option>
                       </select>
                     </td>

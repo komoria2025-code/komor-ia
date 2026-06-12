@@ -14,12 +14,28 @@ datasource db {
 // ENUMS
 // ============================================
 
+// enum UserRole {
+//   admin
+//   user
+//   developer
+//   journaliste
+//   translator // Nouveau rôle pour les traducteurs
+//   linguiste
+// }
 enum UserRole {
   admin
   user
   developer
   journaliste
-  translator // Nouveau rôle pour les traducteurs
+  translator
+  linguiste
+}
+
+enum Dialecte {
+  shingazidja
+  shindzuani
+  shimwali
+  shimaore
 }
 
 enum ModelStatus {
@@ -189,6 +205,7 @@ model Translation {
   verifiedBy       Int?          @map("verified_by") // ID de l'utilisateur qui a vérifié
   verifiedAt       DateTime?     @map("verified_at")
   notes            String?       @db.Text // Notes du traducteur
+  dialecte         Dialecte      @default(shingazidja)
   lastEditPosition Int           @default(0) @map("last_edit_position") // Position du dernier edit
   createdAt        DateTime      @default(now()) @map("created_at")
   updatedAt        DateTime      @updatedAt @map("updated_at")
