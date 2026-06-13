@@ -7,7 +7,6 @@ import {
   Code,
   Zap,
   Shield,
-  Globe,
   ArrowRight,
   Search,
   FileText,
@@ -19,6 +18,8 @@ import {
   Download,
   Rocket,
 } from 'lucide-react'
+
+const DOCS_ENABLED = false
 
 export default function DocsPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -52,9 +53,6 @@ export default function DocsPage() {
       color: 'green',
       items: [
         { title: 'Press-AI', href: '/docs/models/press-ai', icon: FileText },
-        // { title: 'Wazir', href: '/docs/models/wazir', icon: Brain },
-        // { title: 'Translate-AI', href: '/docs/models/translate', icon: Globe },
-        // { title: 'Custom Models', href: '/docs/models/custom', icon: Settings },
       ],
     },
     {
@@ -89,6 +87,15 @@ export default function DocsPage() {
     { title: 'FAQ', href: '/docs/faq', time: '5 min' },
   ]
 
+  const handleDisabled = (e) => {
+    if (!DOCS_ENABLED) e.preventDefault()
+  }
+
+  const disabledItemClasses =
+    'flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group'
+  const activeItemClasses =
+    'flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group'
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -100,8 +107,6 @@ export default function DocsPage() {
               Tout ce dont vous avez besoin pour intégrer Komor-IA dans vos
               applications
             </p>
-
-            {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -123,6 +128,7 @@ export default function DocsPage() {
             <Link
               key={index}
               href={doc.href}
+              onClick={handleDisabled}
               className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border border-gray-200 group"
             >
               <div className="flex items-center justify-between mb-2">
@@ -156,9 +162,7 @@ export default function DocsPage() {
               >
                 <div className="flex items-center space-x-3 mb-6">
                   <div
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                      colorClasses[section.color]
-                    }`}
+                    className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[section.color]}`}
                   >
                     <Icon className="w-6 h-6" />
                   </div>
@@ -174,7 +178,10 @@ export default function DocsPage() {
                       <Link
                         key={idx}
                         href={item.href}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                        onClick={handleDisabled}
+                        className={
+                          DOCS_ENABLED ? activeItemClasses : disabledItemClasses
+                        }
                       >
                         <div className="flex items-center space-x-3">
                           <ItemIcon className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
@@ -201,14 +208,17 @@ export default function DocsPage() {
             Notre équipe est là pour vous accompagner dans votre intégration
           </p>
           <div className="flex items-center justify-center space-x-4">
+            {/* Nous contacter — toujours fonctionnel */}
             <Link
               href="/contact"
               className="px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors"
             >
               Nous contacter
             </Link>
+
             <Link
               href="/docs/api"
+              onClick={handleDisabled}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
               Voir l'API Reference
