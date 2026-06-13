@@ -29,7 +29,7 @@ const steps = [
     description:
       'Rendez-vous sur komor-ia.com depuis votre navigateur. La plateforme est accessible depuis tout appareil connecté à internet.',
     action: { label: 'Accéder à komor-ia.com', href: 'https://komor-ia.com' },
-    image: '/contribution/step1.png',
+    image: '/contribution/step1.jpeg',
     imageAlt: "Page d'accueil de Komor-IA",
   },
   {
@@ -39,7 +39,7 @@ const steps = [
     description:
       'Inscrivez-vous gratuitement en renseignant votre nom, adresse email et un mot de passe sécurisé. Vous pouvez également vous connecter via votre compte Google.',
     action: { label: 'Créer un compte', href: 'https://komor-ia.com/signup' },
-    image: '/contribution/step2.png',
+    image: '/contribution/step2.jpeg',
     imageAlt: "Page d'inscription Komor-IA",
   },
   {
@@ -48,7 +48,7 @@ const steps = [
     title: 'Choisir un article à traduire',
     description:
       'Depuis le tableau de bord, accédez à l\'onglet "Articles & Traduction". Parcourez la liste des articles disponibles, filtrez par catégorie ou statut, puis cliquez sur "Lire →" pour sélectionner un article.',
-    image: '/contribution/step3.png',
+    image: '/contribution/step3.jpeg',
     imageAlt: 'Liste des articles à traduire',
   },
   {
@@ -66,7 +66,7 @@ const steps = [
     title: "Traduire l'article",
     description:
       "L'interface est divisée en deux panneaux. À gauche, le texte original en français. À droite, votre zone de saisie. Traduisez le texte progressivement — votre travail est sauvegardé automatiquement toutes les 2 secondes. Une barre de progression indique votre avancement.",
-    image: '/contribution/step5.png',
+    image: '/contribution/step5.jpeg',
     imageAlt: 'Interface de traduction',
   },
   {
@@ -75,7 +75,7 @@ const steps = [
     title: 'Soumettre la traduction',
     description:
       'Lorsque la traduction est complète (100%), le bouton "Soumettre" devient actif. Cliquez dessus pour envoyer votre traduction. Elle sera ensuite examinée et validée par notre équipe de linguistes.',
-    image: '/contribution/step6.png',
+    image: '/contribution/step6.jpeg',
     imageAlt: 'Soumission de la traduction',
   },
 ]
