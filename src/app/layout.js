@@ -35,21 +35,27 @@ export const metadata = {
   creator: 'Komor-IA',
   publisher: 'Komor-IA',
 
+  // metadataBase: new URL(
+  //   process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  // ),
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    process.env.NODE_ENV === 'production'
+      ? 'https://www.komor-ia.com'
+      : 'http://localhost:3000',
   ),
 
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: '/',
+    url: 'https://www.komor-ia.com',
     title: 'Komor-IA | Intelligence Artificielle Made in Comores',
     description:
       "Startup d'IA basée aux Comores, développant des solutions innovantes pour l'Afrique.",
     siteName: 'Komor-IA',
     images: [
       {
-        url: '/og-image.png',
+        // ✅ URL absolue
+        url: 'https://www.komor-ia.com/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Komor-IA - Intelligence Artificielle Made in Comores',
@@ -57,6 +63,14 @@ export const metadata = {
     ],
   },
 
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Komor-IA | Intelligence Artificielle Made in Comores',
+    description: "Des modèles d'IA adaptés au contexte africain",
+    // ✅ URL absolue
+    images: ['https://www.komor-ia.com/og-image.png'],
+    creator: '@komoria',
+  },
   twitter: {
     card: 'summary_large_image',
     title: 'Komor-IA | Intelligence Artificielle Made in Comores',
