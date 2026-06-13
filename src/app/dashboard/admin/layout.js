@@ -55,6 +55,7 @@ export default function AdminLayout({ children }) {
       icon: Languages,
     },
     { href: '/dashboard/admin/api-keys', label: 'Clés API', icon: Key },
+    { href: '/dashboard/admin/blogs', label: 'Blogs', icon: Key },
     { href: '/dashboard/admin/settings', label: 'Paramètres', icon: Settings },
   ]
 

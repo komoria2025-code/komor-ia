@@ -107,6 +107,7 @@ model User {
   translations     Translation[] // Traductions faites par l'utilisateur
   translationEdits TranslationEdit[] // Historique des modifications
   userSettings     UserSettings?
+  blogs            Blog[]
 
   @@index([email])
   @@map("users")
@@ -397,206 +398,35 @@ model UserSettings {
   @@map("user_settings")
 }
 
-// generator client {
-//   provider = "prisma-client-js"
-//   output   = "../node_modules/.prisma/client"
-// }
+// Pour le Blog
+enum BlogStatus {
+  draft
+  published
+  archived
+}
 
-// datasource db {
-//   provider = "mysql"
-//   url      = env("DATABASE_URL")
-// }
+model Blog {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(500)
+  slug        String     @unique
+  excerpt     String?    @db.Text
+  content     String     @db.LongText // Markdown
+  coverImage  String?    @map("cover_image")
+  category    String     @default("actualites")
+  tags        Json?
+  status      BlogStatus @default(draft)
+  authorId    Int        @map("author_id")
+  publishedAt DateTime?  @map("published_at")
+  readTime    Int        @default(5) @map("read_time") // minutes
+  views       Int        @default(0)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
-// // Informations sur la startup
-// model KMIA {
-//   id           Int      @id @default(autoincrement())
-//   nom          String
-//   description  String   @db.Text
-//   secteur      String
-//   siteWeb      String?
-//   emailContact String?
-//   pays         String
-//   ville        String?
-//   fondateurs   String?
-//   createdAt    DateTime @default(now())
-//   updatedAt    DateTime @updatedAt
-// }
+  // Relations
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-// // Modèles IA disponibles
-// model Modele {
-//   id          Int         @id @default(autoincrement())
-//   name        String      @unique
-//   slug        String      @unique // Pour les URLs (ex: "press-ai", "wazir")
-//   description String      @db.Text
-//   domaine     String // NLP, Vision, Audio, etc.
-//   version     String
-//   status      ModelStatus @default(beta)
-//   endpoint    String? // URL de l'API
-//   icon        String? // Nom de l'icône Lucide
-//   color       String? // Couleur du thème (ex: "blue", "green")
-//   isPublic    Boolean     @default(true)
-//   features    String?     @db.Text // JSON des fonctionnalités
-//   pricing     String?     @db.Text // JSON des tarifs
-//   createdAt   DateTime    @default(now())
-//   updatedAt   DateTime    @updatedAt
-//   apiKeys     ApiKey[]
-//   usageLogs   UsageLog[]
-// }
-
-// // Articles de presse (pour Press-AI)
-// model Article {
-//   id        Int      @id @default(autoincrement())
-//   contenu   String   @db.Text
-//   resume    String?  @db.Text
-//   categorie String
-//   userId    Int?
-//   user      User?    @relation(fields: [userId], references: [id])
-//   createdAt DateTime @default(now())
-
-//   @@index([userId])
-//   @@index([categorie])
-// }
-
-// // Utilisateurs
-// model User {
-//   id            Int        @id @default(autoincrement())
-//   name          String
-//   email         String     @unique
-//   emailVerified DateTime?
-//   image         String?
-//   role          UserRole   @default(user)
-//   hashPassword  String?    @db.Text
-//   createdAt     DateTime   @default(now())
-//   updatedAt     DateTime   @updatedAt
-//   articles      Article[]
-//   profil        Profil?    @relation("UserProfil")
-//   apiKeys       ApiKey[]
-//   usageLogs     UsageLog[]
-//   accounts      Account[]
-//   sessions      Session[]
-// }
-
-// // Profils utilisateurs
-// model Profil {
-//   id          Int          @id @default(autoincrement())
-//   description String?      @db.Text
-//   email       String?
-//   phoneNumber String?      @unique
-//   address     String?
-//   city        String?
-//   country     String?
-//   website     String?
-//   linkedin    String?
-//   twitter     String?
-//   bio         String?      @db.Text
-//   skills      String?
-//   experience  Int?
-//   education   String?
-//   userId      Int          @unique
-//   status      ProfilStatus @default(private)
-//   user        User         @relation("UserProfil", fields: [userId], references: [id])
-//   createdAt   DateTime     @default(now())
-//   updatedAt   DateTime     @updatedAt
-// }
-
-// // Clés API pour accéder aux modèles
-// model ApiKey {
-//   id        Int       @id @default(autoincrement())
-//   key       String    @unique
-//   name      String // Nom donné par l'utilisateur (ex: "Production Key")
-//   userId    Int
-//   user      User      @relation(fields: [userId], references: [id])
-//   modeleId  Int?
-//   modele    Modele?   @relation(fields: [modeleId], references: [id])
-//   isActive  Boolean   @default(true)
-//   rateLimit Int       @default(1000) // Requêtes par heure
-//   lastUsed  DateTime?
-//   expiresAt DateTime?
-//   createdAt DateTime  @default(now())
-//   updatedAt DateTime  @updatedAt
-
-//   @@index([userId])
-//   @@index([modeleId])
-//   @@index([key])
-// }
-
-// // Logs d'utilisation des API
-// model UsageLog {
-//   id           Int      @id @default(autoincrement())
-//   userId       Int
-//   user         User     @relation(fields: [userId], references: [id])
-//   modeleId     Int
-//   modele       Modele   @relation(fields: [modeleId], references: [id])
-//   endpoint     String
-//   method       String
-//   statusCode   Int
-//   responseTime Int // En millisecondes
-//   inputTokens  Int?
-//   outputTokens Int?
-//   cost         Float? // Coût de la requête
-//   createdAt    DateTime @default(now())
-
-//   @@index([userId])
-//   @@index([modeleId])
-//   @@index([createdAt])
-// }
-
-// // Enums
-// enum ProfilStatus {
-//   private
-//   public
-// }
-
-// enum UserRole {
-//   admin
-//   user
-//   developer
-//   journaliste
-// }
-
-// enum ModelStatus {
-//   development // En développement
-//   beta // Version beta
-//   production // Production
-//   deprecated // Obsolète
-// }
-
-// // Ajouter au schema.prisma
-
-// model Account {
-//   id                Int     @id @default(autoincrement())
-//   userId            Int
-//   type              String
-//   provider          String
-//   providerAccountId String
-//   refresh_token     String? @db.Text
-//   access_token      String? @db.Text
-//   expires_at        Int?
-//   token_type        String?
-//   scope             String?
-//   id_token          String? @db.Text
-//   session_state     String?
-
-//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   @@unique([provider, providerAccountId])
-//   @@index([userId])
-// }
-
-// model Session {
-//   id           Int      @id @default(autoincrement())
-//   sessionToken String   @unique
-//   userId       Int
-//   expires      DateTime
-//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   @@index([userId])
-// }
-
-// model VerificationToken {
-//   identifier String   @id @default(cuid())
-//   token      String   @unique
-//   expires    DateTime
-
-//   @@unique([identifier, token])
-// }
+  @@index([slug])
+  @@index([status])
+  @@index([authorId])
+  @@map("blogs")
+}
