@@ -357,7 +357,7 @@ export default function ContributionPage() {
               {
                 name: 'Shimaore',
                 region: 'Mayotte',
-                flag: '🇫🇷',
+                flag: '🇰🇲',
                 default: false,
               },
             ].map((d, i) => (
