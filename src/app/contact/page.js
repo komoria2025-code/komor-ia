@@ -19,7 +19,7 @@ export default function page() {
     {
       icon: MapPin,
       label: 'Adresse',
-      value: 'Moroni, Comores 🇰🇲',
+      value: 'Oujda, Maroc',
       href: null,
       description: 'Notre siège social',
     },
