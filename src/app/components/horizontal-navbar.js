@@ -169,7 +169,7 @@ export default function HorizontalNavbar({
 
           {/* Nav Links + Auth - Desktop */}
           <div className="hidden lg:flex items-center space-x-2">
-            {['Models', 'Tarifs', 'Docs'].map((item, i) => (
+            {['Models', 'Blog', 'Docs'].map((item, i) => (
               <Link
                 key={i}
                 href={`/${item.toLowerCase()}`}
