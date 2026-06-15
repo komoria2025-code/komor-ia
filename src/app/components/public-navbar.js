@@ -17,7 +17,7 @@ export default function PublicNavbar() {
 
   const navLinks = [
     { href: '/models', label: 'Modèles' },
-    { href: '/pricing', label: 'Tarifs' },
+    { href: '/tarifs', label: 'Tarifs' },
     { href: '/docs', label: 'Documentation' },
     { href: '/blog', label: 'Blog' },
     { href: '/about', label: 'À propos' },
