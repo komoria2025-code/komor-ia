@@ -44,7 +44,7 @@ export default function TranslatePage({ slug, onBack }) {
   const [dialecte, setDialecte] = useState('shingazidja')
 
   // ✅ Accordéon mobile — texte original replié par défaut
-  const [originalOpen, setOriginalOpen] = useState(false)
+  const [originalOpen, setOriginalOpen] = useState(true)
 
   const translationRef = useRef('')
   const progressRef = useRef(0)
