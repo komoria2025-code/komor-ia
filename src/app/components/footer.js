@@ -220,14 +220,6 @@ export default function Footer() {
                 ORELC
               </a>
               {/* Ajoutez d'autres partenaires ici */}
-              <a
-                href="https://dictionary.orelc.ac/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors text-sm font-medium"
-              >
-                ORELC
-              </a>
             </div>
           </div>
         </div>
