@@ -64,7 +64,6 @@ const statusConfig = {
   },
 }
 
-// ✅ Formatage durée
 const fmt = (s) =>
   `${Math.floor(s / 60)
     .toString()
@@ -98,13 +97,14 @@ export default function VoicePage() {
   const chunksRef = useRef([])
   const timerRef = useRef(null)
   const audioRef = useRef(null)
+  // ✅ Ref synchrone pour éviter le bug de closure sur `recording`
+  const isRecordingRef = useRef(false)
 
   useEffect(() => {
     fetchPhrase()
     fetchMyRecordings()
   }, [dialecte])
 
-  // ── Charger phrase ──────────────────────────────
   const fetchPhrase = async () => {
     setLoadingPhrase(true)
     setAudioBlob(null)
@@ -121,7 +121,6 @@ export default function VoicePage() {
     }
   }
 
-  // ── Charger mes contributions ───────────────────
   const fetchMyRecordings = async () => {
     try {
       const res = await fetch('/api/voice/recordings')
@@ -132,7 +131,7 @@ export default function VoicePage() {
     }
   }
 
-  // ── Enregistrement ──────────────────────────────
+  // ✅ startRecording corrigé : timeslice 250ms + isRecordingRef
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -150,32 +149,35 @@ export default function VoicePage() {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
         setAudioBlob(blob)
         setAudioUrl(URL.createObjectURL(blob))
-        setDuration(timer)
+        setDuration(elapsed)
         stream.getTracks().forEach((t) => t.stop())
       }
 
-      mediaRecorder.start()
+      // ✅ timeslice 250ms : les données arrivent régulièrement, pas seulement au stop
+      mediaRecorder.start(250)
       setRecording(true)
+      isRecordingRef.current = true // ✅ ref synchrone, pas de stale closure
       setTimer(0)
 
+      let elapsed = 0
       timerRef.current = setInterval(() => {
-        setTimer((t) => {
-          if (t >= 30) {
-            stopRecording()
-            return t
-          }
-          return t + 1
-        })
+        elapsed += 1
+        setTimer(elapsed)
+        if (elapsed >= 30) {
+          stopRecording()
+        }
       }, 1000)
     } catch (err) {
       setError("Impossible d'accéder au microphone. Vérifiez les permissions.")
     }
   }
 
+  // ✅ stopRecording corrigé : utilise isRecordingRef au lieu du state `recording`
   const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
+    if (mediaRecorderRef.current && isRecordingRef.current) {
       mediaRecorderRef.current.stop()
       setRecording(false)
+      isRecordingRef.current = false // ✅ reset ref
       clearInterval(timerRef.current)
     }
   }
@@ -188,7 +190,6 @@ export default function VoicePage() {
     setError('')
   }
 
-  // ── Soumettre ───────────────────────────────────
   const handleSubmit = async () => {
     if (!audioBlob || !phrase) return
     setUploading(true)
@@ -242,7 +243,6 @@ export default function VoicePage() {
     }
   }
 
-  // ✅ Supprimer un enregistrement rejeté
   const handleDeleteRecording = async (recordingId) => {
     if (!confirm('Supprimer cet enregistrement et pouvoir recommencer ?'))
       return
@@ -251,8 +251,8 @@ export default function VoicePage() {
         method: 'DELETE',
       })
       if (res.ok) {
-        fetchMyRecordings() // ✅ nom correct
-        fetchPhrase() // ✅ la phrase redevient disponible
+        fetchMyRecordings()
+        fetchPhrase()
       } else {
         const data = await res.json()
         alert(data.message)
@@ -263,10 +263,8 @@ export default function VoicePage() {
     }
   }
 
-  // ────────────────────────────────────────────────
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           Enregistrement vocal
@@ -277,7 +275,6 @@ export default function VoicePage() {
         </p>
       </div>
 
-      {/* Sélecteur dialecte */}
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <label className="block text-sm font-medium text-gray-700 mb-3">
           Votre dialecte
@@ -301,7 +298,6 @@ export default function VoicePage() {
         </div>
       </div>
 
-      {/* Phrase à lire */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-gray-900">Phrase à lire</h2>
@@ -356,7 +352,6 @@ export default function VoicePage() {
         )}
       </div>
 
-      {/* Enregistreur */}
       {phrase && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900 mb-6">
@@ -375,7 +370,6 @@ export default function VoicePage() {
             </div>
           ) : (
             <>
-              {/* Timer */}
               {recording && (
                 <div className="flex items-center justify-center mb-6">
                   <div className="flex items-center space-x-3 bg-red-50 px-6 py-3 rounded-full">
@@ -388,7 +382,6 @@ export default function VoicePage() {
                 </div>
               )}
 
-              {/* Bouton principal */}
               <div className="flex justify-center mb-6">
                 {!audioBlob ? (
                   <button
@@ -434,7 +427,6 @@ export default function VoicePage() {
                 {audioBlob && 'Enregistrement prêt — réécouter ou soumettre'}
               </p>
 
-              {/* Lecteur audio */}
               {audioUrl && (
                 <div className="bg-gray-50 rounded-xl p-4 mb-6">
                   <p className="text-sm font-medium text-gray-700 mb-3 flex items-center space-x-2">
@@ -450,7 +442,6 @@ export default function VoicePage() {
                 </div>
               )}
 
-              {/* Erreur */}
               {error && (
                 <div className="flex items-start space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
                   <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -458,7 +449,6 @@ export default function VoicePage() {
                 </div>
               )}
 
-              {/* Bouton soumettre */}
               {audioBlob && (
                 <button
                   onClick={handleSubmit}
@@ -483,7 +473,6 @@ export default function VoicePage() {
         </div>
       )}
 
-      {/* Métadonnées */}
       {phrase && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="font-semibold text-gray-900 mb-4">Vos informations</h2>
@@ -572,7 +561,6 @@ export default function VoicePage() {
         </div>
       )}
 
-      {/* Mes contributions */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <button
           onClick={() => setShowHistory(!showHistory)}
@@ -610,14 +598,12 @@ export default function VoicePage() {
                           {r.phrase?.dialecte} •{' '}
                           {fmt(Math.round(r.duration || 0))}
                         </p>
-                        {/* ✅ Raison du rejet */}
                         {r.rejectReason && (
                           <p className="text-xs text-red-600 mt-1 bg-red-50 px-2 py-1 rounded">
                             ❌ Raison : {r.rejectReason}
                           </p>
                         )}
                       </div>
-
                       <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
                         <span
                           className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${s.color}`}
@@ -625,8 +611,6 @@ export default function VoicePage() {
                           <Icon className="w-3 h-3" />
                           <span>{s.label}</span>
                         </span>
-
-                        {/* ✅ Bouton supprimer si rejeté */}
                         {r.status === 'rejected' && (
                           <button
                             onClick={() => handleDeleteRecording(r.id)}
@@ -654,7 +638,6 @@ export default function VoicePage() {
 // import { useSession } from 'next-auth/react'
 // import {
 //   Mic,
-//   MicOff,
 //   Play,
 //   Square,
 //   Upload,
@@ -666,6 +649,7 @@ export default function VoicePage() {
 //   Volume2,
 //   AlertCircle,
 //   Loader2,
+//   Trash2,
 // } from 'lucide-react'
 
 // const dialectes = [
@@ -696,27 +680,46 @@ export default function VoicePage() {
 //   { value: 'diaspora', label: 'Diaspora' },
 // ]
 
+// const statusConfig = {
+//   pending: {
+//     label: 'En attente',
+//     color: 'bg-yellow-100 text-yellow-700',
+//     icon: Clock,
+//   },
+//   validated: {
+//     label: 'Validé',
+//     color: 'bg-green-100 text-green-700',
+//     icon: CheckCircle,
+//   },
+//   rejected: {
+//     label: 'Rejeté',
+//     color: 'bg-red-100 text-red-700',
+//     icon: XCircle,
+//   },
+// }
+
+// // ✅ Formatage durée
+// const fmt = (s) =>
+//   `${Math.floor(s / 60)
+//     .toString()
+//     .padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
+
 // export default function VoicePage() {
 //   const { data: session } = useSession()
 
-//   // Phrase
 //   const [phrase, setPhrase] = useState(null)
 //   const [loadingPhrase, setLoadingPhrase] = useState(true)
-
-//   // Enregistrement
 //   const [recording, setRecording] = useState(false)
 //   const [audioBlob, setAudioBlob] = useState(null)
 //   const [audioUrl, setAudioUrl] = useState(null)
 //   const [duration, setDuration] = useState(0)
 //   const [timer, setTimer] = useState(0)
-
-//   // Upload & submit
 //   const [uploading, setUploading] = useState(false)
 //   const [submitted, setSubmitted] = useState(false)
 //   const [error, setError] = useState('')
-
-//   // Métadonnées
 //   const [dialecte, setDialecte] = useState('shingazidja')
+//   const [myRecordings, setMyRecordings] = useState([])
+//   const [showHistory, setShowHistory] = useState(false)
 //   const [meta, setMeta] = useState({
 //     genre: '',
 //     trancheAge: '',
@@ -724,10 +727,6 @@ export default function VoicePage() {
 //     ile: 'grande_comore',
 //     nativeSpeaker: true,
 //   })
-
-//   // Mes contributions
-//   const [myRecordings, setMyRecordings] = useState([])
-//   const [showHistory, setShowHistory] = useState(false)
 
 //   const mediaRecorderRef = useRef(null)
 //   const chunksRef = useRef([])
@@ -739,6 +738,7 @@ export default function VoicePage() {
 //     fetchMyRecordings()
 //   }, [dialecte])
 
+//   // ── Charger phrase ──────────────────────────────
 //   const fetchPhrase = async () => {
 //     setLoadingPhrase(true)
 //     setAudioBlob(null)
@@ -755,6 +755,7 @@ export default function VoicePage() {
 //     }
 //   }
 
+//   // ── Charger mes contributions ───────────────────
 //   const fetchMyRecordings = async () => {
 //     try {
 //       const res = await fetch('/api/voice/recordings')
@@ -765,6 +766,7 @@ export default function VoicePage() {
 //     }
 //   }
 
+//   // ── Enregistrement ──────────────────────────────
 //   const startRecording = async () => {
 //     try {
 //       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -820,13 +822,13 @@ export default function VoicePage() {
 //     setError('')
 //   }
 
+//   // ── Soumettre ───────────────────────────────────
 //   const handleSubmit = async () => {
 //     if (!audioBlob || !phrase) return
 //     setUploading(true)
 //     setError('')
 
 //     try {
-//       // 1. Upload audio
 //       const formData = new FormData()
 //       formData.append('file', audioBlob, 'recording.webm')
 
@@ -834,11 +836,9 @@ export default function VoicePage() {
 //         method: 'POST',
 //         body: formData,
 //       })
-
 //       if (!uploadRes.ok) throw new Error('Upload audio échoué')
 //       const { url, publicId, duration: dur } = await uploadRes.json()
 
-//       // 2. Soumettre enregistrement
 //       const submitRes = await fetch('/api/voice/recordings', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
@@ -864,7 +864,6 @@ export default function VoicePage() {
 //       setSubmitted(true)
 //       fetchMyRecordings()
 
-//       // Reset après 3 secondes et charger nouvelle phrase
 //       setTimeout(() => {
 //         setSubmitted(false)
 //         resetRecording()
@@ -877,29 +876,28 @@ export default function VoicePage() {
 //     }
 //   }
 
-//   const formatTime = (s) =>
-//     `${Math.floor(s / 60)
-//       .toString()
-//       .padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`
-
-//   const statusConfig = {
-//     pending: {
-//       label: 'En attente',
-//       color: 'bg-yellow-100 text-yellow-700',
-//       icon: Clock,
-//     },
-//     validated: {
-//       label: 'Validé',
-//       color: 'bg-green-100 text-green-700',
-//       icon: CheckCircle,
-//     },
-//     rejected: {
-//       label: 'Rejeté',
-//       color: 'bg-red-100 text-red-700',
-//       icon: XCircle,
-//     },
+//   // ✅ Supprimer un enregistrement rejeté
+//   const handleDeleteRecording = async (recordingId) => {
+//     if (!confirm('Supprimer cet enregistrement et pouvoir recommencer ?'))
+//       return
+//     try {
+//       const res = await fetch(`/api/voice/recordings?id=${recordingId}`, {
+//         method: 'DELETE',
+//       })
+//       if (res.ok) {
+//         fetchMyRecordings() // ✅ nom correct
+//         fetchPhrase() // ✅ la phrase redevient disponible
+//       } else {
+//         const data = await res.json()
+//         alert(data.message)
+//       }
+//     } catch (e) {
+//       console.error(e)
+//       alert('Erreur lors de la suppression')
+//     }
 //   }
 
+//   // ────────────────────────────────────────────────
 //   return (
 //     <div className="max-w-3xl mx-auto space-y-6">
 //       {/* Header */}
@@ -975,9 +973,7 @@ export default function VoicePage() {
 //                 {Array.from({ length: 3 }).map((_, i) => (
 //                   <div
 //                     key={i}
-//                     className={`w-2 h-2 rounded-full ${
-//                       i < phrase.difficulty ? 'bg-orange-400' : 'bg-gray-200'
-//                     }`}
+//                     className={`w-2 h-2 rounded-full ${i < phrase.difficulty ? 'bg-orange-400' : 'bg-gray-200'}`}
 //                   />
 //                 ))}
 //               </div>
@@ -1019,7 +1015,7 @@ export default function VoicePage() {
 //                   <div className="flex items-center space-x-3 bg-red-50 px-6 py-3 rounded-full">
 //                     <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
 //                     <span className="text-red-600 font-mono text-xl font-bold">
-//                       {formatTime(timer)}
+//                       {fmt(timer)}
 //                     </span>
 //                     <span className="text-red-400 text-sm">max 30s</span>
 //                   </div>
@@ -1057,7 +1053,7 @@ export default function VoicePage() {
 //                         <CheckCircle className="w-8 h-8 text-green-600" />
 //                       </div>
 //                       <p className="text-xs text-gray-500 mt-1">
-//                         {formatTime(duration)}
+//                         {fmt(duration)}
 //                       </p>
 //                     </div>
 //                   </div>
@@ -1129,7 +1125,6 @@ export default function VoicePage() {
 //             Ces informations enrichissent le corpus et sont anonymisées.
 //           </p>
 //           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//             {/* Genre */}
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">
 //                 Genre
@@ -1145,8 +1140,6 @@ export default function VoicePage() {
 //                 <option value="autre">Autre</option>
 //               </select>
 //             </div>
-
-//             {/* Tranche d'âge */}
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">
 //                 Tranche d'âge
@@ -1166,8 +1159,6 @@ export default function VoicePage() {
 //                 ))}
 //               </select>
 //             </div>
-
-//             {/* Île */}
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">
 //                 Île d'origine
@@ -1184,8 +1175,6 @@ export default function VoicePage() {
 //                 ))}
 //               </select>
 //             </div>
-
-//             {/* Zone */}
 //             <div>
 //               <label className="block text-sm font-medium text-gray-700 mb-2">
 //                 Zone
@@ -1200,8 +1189,6 @@ export default function VoicePage() {
 //               </select>
 //             </div>
 //           </div>
-
-//           {/* Locuteur natif */}
 //           <div className="mt-4 flex items-center space-x-3">
 //             <input
 //               type="checkbox"
@@ -1247,34 +1234,43 @@ export default function VoicePage() {
 //                 const s = statusConfig[r.status]
 //                 const Icon = s.icon
 //                 return (
-//                   <div
-//                     key={r.id}
-//                     className="flex items-center justify-between px-4 py-3"
-//                   >
-//                     <div className="flex-1 min-w-0 mr-4">
-//                       <p className="text-sm font-medium text-gray-900 truncate">
-//                         {r.phrase?.text}
-//                       </p>
-//                       <p className="text-xs text-gray-500">
-//                         {r.dialecte} •{' '}
-//                         {new Date(r.createdAt).toLocaleDateString('fr-FR')}
-//                       </p>
-//                     </div>
-//                     <div className="flex items-center space-x-3">
-//                       {r.audioUrl && (
-//                         <audio
-//                           src={r.audioUrl}
-//                           controls
-//                           className="h-8"
-//                           style={{ width: '150px' }}
-//                         />
-//                       )}
-//                       <span
-//                         className={`flex items-center space-x-1 text-xs px-2 py-1 rounded-full font-medium ${s.color}`}
-//                       >
-//                         <Icon className="w-3 h-3" />
-//                         <span>{s.label}</span>
-//                       </span>
+//                   <div key={r.id} className="px-6 py-4">
+//                     <div className="flex items-center justify-between">
+//                       <div className="flex-1 min-w-0">
+//                         <p className="text-sm font-medium text-gray-900 line-clamp-1">
+//                           {r.phrase?.text}
+//                         </p>
+//                         <p className="text-xs text-gray-500 mt-0.5 capitalize">
+//                           {r.phrase?.dialecte} •{' '}
+//                           {fmt(Math.round(r.duration || 0))}
+//                         </p>
+//                         {/* ✅ Raison du rejet */}
+//                         {r.rejectReason && (
+//                           <p className="text-xs text-red-600 mt-1 bg-red-50 px-2 py-1 rounded">
+//                             ❌ Raison : {r.rejectReason}
+//                           </p>
+//                         )}
+//                       </div>
+
+//                       <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+//                         <span
+//                           className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${s.color}`}
+//                         >
+//                           <Icon className="w-3 h-3" />
+//                           <span>{s.label}</span>
+//                         </span>
+
+//                         {/* ✅ Bouton supprimer si rejeté */}
+//                         {r.status === 'rejected' && (
+//                           <button
+//                             onClick={() => handleDeleteRecording(r.id)}
+//                             className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+//                             title="Supprimer et recommencer"
+//                           >
+//                             <Trash2 className="w-4 h-4" />
+//                           </button>
+//                         )}
+//                       </div>
 //                     </div>
 //                   </div>
 //                 )
