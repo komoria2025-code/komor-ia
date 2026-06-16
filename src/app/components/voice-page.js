@@ -27,7 +27,7 @@ const dialectes = [
   },
   { value: 'shindzuani', label: 'Shindzuani', flag: '🇰🇲', desc: 'Anjouan' },
   { value: 'shimwali', label: 'Shimwali', flag: '🇰🇲', desc: 'Mohéli' },
-  { value: 'shimaore', label: 'Shimaore', flag: '🇫🇷', desc: 'Mayotte' },
+  { value: 'shimaore', label: 'Shimaore', flag: '🇰🇲', desc: 'Mayotte' },
 ]
 
 const tranchesAge = [
