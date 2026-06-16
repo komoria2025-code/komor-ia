@@ -11,6 +11,7 @@ import ArticlesListPage from './articles-list-page'
 import TranslatePage from './translate-page'
 
 import ModelInfo from './ModelInfo'
+import VoicePage from './voice-page'
 // SUPPRIME l'import ModelPage
 
 export default function DashboardComplete() {
@@ -50,8 +51,11 @@ export default function DashboardComplete() {
         return <ApiKeysPage />
       case 'articles':
         return <ArticlesListPage onArticleClick={handleArticleClick} />
+      case 'voice':
+        return <VoicePage />
       case 'usage':
         return <UsagePage />
+
       case 'settings':
         return <SettingsPage />
       case 'docs':

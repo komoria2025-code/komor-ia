@@ -108,6 +108,8 @@ model User {
   translationEdits TranslationEdit[] // Historique des modifications
   userSettings     UserSettings?
   blogs            Blog[]
+  voicePhrases     VoicePhrase[]
+  voiceRecordings  VoiceRecording[]
 
   @@index([email])
   @@map("users")
@@ -429,4 +431,95 @@ model Blog {
   @@index([status])
   @@index([authorId])
   @@map("blogs")
+}
+
+// Pour la collece vocale 
+enum VoicePhraseStatus {
+  active
+  inactive
+  completed
+}
+
+enum VoiceRecordingStatus {
+  pending
+  validated
+  rejected
+}
+
+enum Genre {
+  homme
+  femme
+  autre
+}
+
+enum TrancheAge {
+  moins18
+  age18_25
+  age26_35
+  age36_50
+  plus50
+}
+
+enum ZoneGeographique {
+  urbain
+  rural
+}
+
+enum Ile {
+  grande_comore
+  anjouan
+  moheli
+  mayotte
+  diaspora
+}
+
+model VoicePhrase {
+  id             Int               @id @default(autoincrement())
+  text           String            @db.Text
+  dialecte       Dialecte          @default(shingazidja)
+  translation    String?           @db.Text
+  difficulty     Int               @default(1)
+  status         VoicePhraseStatus @default(active)
+  maxRecordings  Int               @default(3) @map("max_recordings")
+  recordingCount Int               @default(0) @map("recording_count")
+  createdBy      Int               @map("created_by")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  creator    User             @relation(fields: [createdBy], references: [id])
+  recordings VoiceRecording[]
+
+  @@index([status])
+  @@index([dialecte])
+  @@map("voice_phrases")
+}
+
+model VoiceRecording {
+  id            Int                  @id @default(autoincrement())
+  phraseId      Int                  @map("phrase_id")
+  userId        Int                  @map("user_id")
+  audioUrl      String               @map("audio_url")
+  publicId      String               @map("public_id")
+  duration      Float                @default(0)
+  status        VoiceRecordingStatus @default(pending)
+  dialecte      Dialecte             @default(shingazidja)
+  genre         Genre?
+  trancheAge    TrancheAge?          @map("tranche_age")
+  zone          ZoneGeographique?
+  ile           Ile?
+  nativeSpeaker Boolean              @default(true) @map("native_speaker")
+  validatedBy   Int?                 @map("validated_by")
+  validatedAt   DateTime?            @map("validated_at")
+  rejectReason  String?              @map("reject_reason") @db.Text
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+
+  phrase VoicePhrase @relation(fields: [phraseId], references: [id])
+  user   User        @relation(fields: [userId], references: [id])
+
+  @@unique([phraseId, userId])
+  @@index([phraseId])
+  @@index([userId])
+  @@index([status])
+  @@map("voice_recordings")
 }

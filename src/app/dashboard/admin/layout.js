@@ -12,6 +12,7 @@ import {
   Key,
   Settings,
   Shield,
+  Mic,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -49,6 +50,17 @@ export default function AdminLayout({ children }) {
     { href: '/dashboard/admin/models', label: 'Modèles IA', icon: Brain },
     { href: '/dashboard/admin/articles', label: 'Articles', icon: FileText },
     { href: '/dashboard/admin/stats', label: 'Statistiques', icon: FileText },
+    {
+      href: '/dashboard/admin/voice/phrases',
+      label: 'Phrases vocales',
+      icon: Mic,
+    }, // ← NOUVEAU
+    {
+      href: '/dashboard/admin/voice/recordings',
+      label: 'Enregistrements',
+      icon: Mic,
+    }, // ← NOUVEAU
+
     {
       href: '/dashboard/admin/translations',
       label: 'Traductions',
