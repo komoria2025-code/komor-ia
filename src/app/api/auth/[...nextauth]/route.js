@@ -101,7 +101,7 @@ export const authOptions = {
     signOut: '/',
     error: '/login',
     verifyRequest: '/verify',
-    newUser: '/dashboard',
+    newUser: '/',
   },
 
   callbacks: {
