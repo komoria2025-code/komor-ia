@@ -364,12 +364,18 @@ export default function TranslatePage({ slug, onBack }) {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={progress < 100 || saving}
+              disabled={progress < 70 || saving}
               className="px-4 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm"
             >
               <Save className="w-4 h-4" />
               <span>Soumettre</span>
             </button>
+            {/* ✅ Message d'info si pas encore à 70% */}
+            {progress < 70 && (
+              <p className="text-xs text-gray-400 mt-1">
+                Minimum 70% requis ({progress}%)
+              </p>
+            )}
           </div>
           {/* <div className="flex items-center space-x-2">
             <button
