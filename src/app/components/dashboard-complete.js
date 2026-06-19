@@ -12,12 +12,14 @@ import TranslatePage from './translate-page'
 
 import ModelInfo from './ModelInfo'
 import VoicePage from './voice-page'
+import { useSearchParams } from 'next/navigation'
 // SUPPRIME l'import ModelPage
 
 export default function DashboardComplete() {
   const [activeSection, setActiveSection] = useState('home')
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [selectedArticleSlug, setSelectedArticleSlug] = useState(null)
+  const searchParams = useSearchParams()
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
@@ -30,6 +32,12 @@ export default function DashboardComplete() {
     setSelectedArticleSlug(slug)
     setActiveSection('translate')
   }
+  useEffect(() => {
+    const section = searchParams.get('section')
+    if (section) {
+      setActiveSection(section)
+    }
+  }, [searchParams])
 
   const renderContent = () => {
     if (activeSection === 'translate' && selectedArticleSlug) {
