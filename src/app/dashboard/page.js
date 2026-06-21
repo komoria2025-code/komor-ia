@@ -163,7 +163,7 @@ export default function DashboardPage() {
             Créez votre première clé API pour accéder à nos modèles
           </p>
           <Link
-            href="/dashboard/api-keys"
+            href="/dashboard/api-keys-page"
             className="inline-flex items-center space-x-2 bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors font-medium"
           >
             <Key className="w-4 h-4" />

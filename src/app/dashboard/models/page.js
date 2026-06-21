@@ -215,7 +215,7 @@ export default function ModelsPage() {
         </div>
       </section>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }
