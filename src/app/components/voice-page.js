@@ -262,6 +262,43 @@ export default function VoicePage() {
       alert('Erreur lors de la suppression')
     }
   }
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <div className="max-w-md mx-auto text-center py-20">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Mic className="w-8 h-8 text-blue-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          Connexion requise
+        </h2>
+        <p className="text-gray-600 mb-8">
+          Vous devez être connecté pour contribuer au corpus vocal shikomori.
+        </p>
+        <div className="flex flex-col space-y-3">
+          
+            <a href="/login"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Se connecter
+          </a>
+          
+           <a href="/signup"
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+          >
+            Créer un compte gratuitement
+          </a>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
