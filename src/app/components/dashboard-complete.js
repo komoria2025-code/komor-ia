@@ -54,7 +54,8 @@ export default function DashboardComplete() {
 
     switch (activeSection) {
       case 'home':
-        return <HomePage />
+        // return <HomePage />
+        return <HomePage onSectionChange={handleSectionChange} />
       case 'api-keys':
         return <ApiKeysPage />
       case 'articles':

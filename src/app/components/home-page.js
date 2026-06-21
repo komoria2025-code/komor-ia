@@ -16,7 +16,8 @@ import { useState, useEffect } from 'react'
 import Footer from './footer'
 import HorizontalNavbar from './horizontal-navbar'
 
-export default function HomePage() {
+// export default function HomePage() {
+export default function HomePage({ onSectionChange }) {
   const [models, setModels] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -80,13 +81,21 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={() => onSectionChange?.('voice')}
+                className="group inline-flex items-center space-x-2 px-8 py-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <span className="font-medium">Contribuer au shikomori </span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
               <Link
                 href="/contribution"
                 className="group inline-flex items-center space-x-2 px-8 py-4 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all duration-200 shadow-sm hover:shadow-md"
               >
-                <span className="font-medium">Contribuer à la traduction</span>
+                <span className="font-medium">Guide de contribution</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
+
               <Link
                 href="/contact"
                 className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-all duration-200"
