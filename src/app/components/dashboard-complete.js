@@ -62,18 +62,12 @@ export default function DashboardComplete() {
         return <ArticlesListPage onArticleClick={handleArticleClick} />
       case 'voice':
         return <VoicePage />
-      case 'usage':
-        return <UsagePage />
+      // case 'usage':
+      //   return <UsagePage />
 
       case 'settings':
         return <SettingsPage />
-      case 'docs':
-        return (
-          <div className="p-6 bg-white rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Documentation</h2>
-            <p>Documentation à venir...</p>
-          </div>
-        )
+
       default:
         if (activeSection?.startsWith('model-')) {
           const slug = activeSection.replace('model-', '')

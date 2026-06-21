@@ -60,8 +60,8 @@ export default function Sidebar({
     { id: 'api-keys', label: 'Clés API', icon: Key },
     { id: 'articles', label: 'Articles & Traduction', icon: Languages },
     { id: 'voice', label: 'Enregistrement vocal', icon: Mic },
-    { id: 'usage', label: 'Utilisation', icon: BarChart3 },
-    { id: 'docs', label: 'Documentation', icon: BookOpen },
+    // { id: 'usage', label: 'Utilisation', icon: BarChart3 },
+    // { id: 'docs', label: 'Documentation', icon: BookOpen },
     // { id: 'settings', label: 'Paramètres', icon: Settings },
   ]
 
