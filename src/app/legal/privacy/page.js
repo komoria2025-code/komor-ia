@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'Politique de confidentialité — Komor-IA',
+  title: 'Politique de confidentialité - Komor-IA',
   description:
     'Comment Komor-IA collecte, utilise et protège vos données personnelles.',
 }

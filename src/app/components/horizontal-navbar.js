@@ -389,16 +389,18 @@ export default function HorizontalNavbar({
                 <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Explorer
                 </p>
-                {['Models', 'Tarifs', 'Documentation'].map((item, i) => (
-                  <Link
-                    key={i}
-                    href={`/${item.toLowerCase()}`}
-                    className="block px-4 py-3 text-sm font-bold text-gray-700 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-all"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item}
-                  </Link>
-                ))}
+                {['Models', 'Tarifs', 'Blog', 'Documentation'].map(
+                  (item, i) => (
+                    <Link
+                      key={i}
+                      href={`/${item.toLowerCase()}`}
+                      className="block px-4 py-3 text-sm font-bold text-gray-700 hover:text-blue-600 rounded-xl hover:bg-blue-50 transition-all"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item}
+                    </Link>
+                  ),
+                )}
               </div>
             )}
 

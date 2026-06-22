@@ -8,12 +8,12 @@ const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
-const EXCEL_FILE = './Traduction-phase.xlsx'
+const EXCEL_FILE = './Traduction-phrase.xlsx'
 const ADMIN_ID = 17 // ← mets ton vrai user ID admin
 const DIALECTE = 'shingazidja'
 const DIFFICULTY = 1
-const ROW_START = 5 // ligne Excel de départ
-const ROW_END = 104 // ligne Excel de fin
+const ROW_START = 204 // ligne Excel de départ
+const ROW_END = 424 // ligne Excel de fin
 
 async function main() {
   // 1. Lecture Excel
