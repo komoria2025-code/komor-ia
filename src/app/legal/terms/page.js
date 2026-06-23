@@ -36,9 +36,8 @@ export default function TermsPage() {
             <p>
               La plateforme Komor-IA (accessible à l'adresse{' '}
               <strong className="text-gray-900">komor-ia.com</strong>) est
-              éditée par la SARL Komor-IA, dont le siège est à Moroni, Comores.
-              En accédant à la plateforme, vous acceptez les présentes
-              conditions sans réserve.
+              éditée par la SARL Komor-IA. En accédant à la plateforme, vous
+              acceptez les présentes conditions sans réserve.
             </p>
           </section>
 
@@ -175,10 +174,10 @@ export default function TermsPage() {
               9. Droit applicable
             </h2>
             <p>
-              Les présentes conditions sont régies par le droit comorien. En cas
-              de litige, les parties s'engagent à rechercher une solution
-              amiable avant tout recours judiciaire. À défaut, les tribunaux de
-              Moroni seront seuls compétents.
+              Les présentes conditions sont régies par le droit. En cas de
+              litige, les parties s'engagent à rechercher une solution amiable
+              avant tout recours judiciaire. À défaut, les tribunaux de Moroni
+              seront seuls compétents.
             </p>
           </section>
 
