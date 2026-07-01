@@ -99,17 +99,20 @@ model User {
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  profil           Profil?
-  apiKeys          ApiKey[]
-  usageLogs        UsageLog[]
-  accounts         Account[]
-  sessions         Session[]
-  translations     Translation[] // Traductions faites par l'utilisateur
-  translationEdits TranslationEdit[] // Historique des modifications
-  userSettings     UserSettings?
-  blogs            Blog[]
-  voicePhrases     VoicePhrase[]
-  voiceRecordings  VoiceRecording[]
+  profil            Profil?
+  apiKeys           ApiKey[]
+  usageLogs         UsageLog[]
+  accounts          Account[]
+  sessions          Session[]
+  translations      Translation[] // Traductions faites par l'utilisateur
+  translationEdits  TranslationEdit[] // Historique des modifications
+  userSettings      UserSettings?
+  blogs             Blog[]
+  voicePhrases      VoicePhrase[]
+  voiceRecordings   VoiceRecording[]
+  userGamification  UserGamification?
+  pointTransactions PointTransaction[]
+  userBadges        UserBadge[]
 
   @@index([email])
   @@map("users")
@@ -163,6 +166,37 @@ model Modele {
 // SYSTÈME D'ARTICLES ET TRADUCTIONS
 // ============================================
 
+// model Article {
+//   id             Int             @id @default(autoincrement())
+//   title          String          @db.VarChar(500)
+//   slug           String          @unique
+//   originalText   String          @map("original_text") @db.LongText
+//   originalLang   ArticleLanguage @default(fr) @map("original_lang")
+//   targetLang     ArticleLanguage @default(zdj) @map("target_lang")
+//   category       ArticleCategory @default(autre)
+//   status         ArticleStatus   @default(pending)
+//   difficulty     Int             @default(1) // 1-5: facilité de traduction
+//   estimatedWords Int             @default(0) @map("estimated_words")
+//   source         String?         @db.VarChar(500) // Source de l'article
+//   author         String?         @db.VarChar(255)
+//   publishedDate  DateTime?       @map("published_date")
+//   tags           Json? // Tags pour filtrage
+//   metadata       Json? // Métadonnées additionnelles
+//   priority       Int             @default(0) // 0-10: priorité de traduction
+//   isPublic       Boolean         @default(true) @map("is_public")
+//   createdAt      DateTime        @default(now()) @map("created_at")
+//   updatedAt      DateTime        @updatedAt @map("updated_at")
+
+//   // Relations
+//   translations     Translation[]
+//   translationEdits TranslationEdit[]
+
+//   @@index([slug])
+//   @@index([status])
+//   @@index([category])
+//   @@index([originalLang, targetLang])
+//   @@map("articles")
+// }
 model Article {
   id             Int             @id @default(autoincrement())
   title          String          @db.VarChar(500)
@@ -172,25 +206,26 @@ model Article {
   targetLang     ArticleLanguage @default(zdj) @map("target_lang")
   category       ArticleCategory @default(autre)
   status         ArticleStatus   @default(pending)
-  difficulty     Int             @default(1) // 1-5: facilité de traduction
+  difficulty     Int             @default(1)
   estimatedWords Int             @default(0) @map("estimated_words")
-  source         String?         @db.VarChar(500) // Source de l'article
+  contentType    ContentType     @default(article) @map("content_type") // ✅ NOUVEAU
+  source         String?         @db.VarChar(500)
   author         String?         @db.VarChar(255)
   publishedDate  DateTime?       @map("published_date")
-  tags           Json? // Tags pour filtrage
-  metadata       Json? // Métadonnées additionnelles
-  priority       Int             @default(0) // 0-10: priorité de traduction
+  tags           Json?
+  metadata       Json?
+  priority       Int             @default(0)
   isPublic       Boolean         @default(true) @map("is_public")
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime        @updatedAt @map("updated_at")
 
-  // Relations
   translations     Translation[]
   translationEdits TranslationEdit[]
 
   @@index([slug])
   @@index([status])
   @@index([category])
+  @@index([contentType]) // ✅ NOUVEAU
   @@index([originalLang, targetLang])
   @@map("articles")
 }
@@ -522,4 +557,70 @@ model VoiceRecording {
   @@index([userId])
   @@index([status])
   @@map("voice_recordings")
+}
+
+// Pour la traduction, extension avec de petites phrases
+enum ContentType {
+  article // Article de presse complet
+  paragraph // Conte, histoire courte, paragraphe
+  sentence // Phrase unique
+}
+
+// ============================================
+// GAMIFICATION
+// ============================================
+
+model UserGamification {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @unique @map("user_id")
+  points       Int       @default(0) // Points actuels
+  totalPoints  Int       @default(0) @map("total_points") // Cumulé à vie (pour badges)
+  level        Int       @default(1)
+  streak       Int       @default(0) // Jours consécutifs actuels
+  maxStreak    Int       @default(0) @map("max_streak") // Record de streak
+  lastActiveAt DateTime? @map("last_active_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions PointTransaction[]
+  badges       UserBadge[]
+
+  @@index([userId])
+  @@index([totalPoints]) // Pour le leaderboard
+  @@map("user_gamification")
+}
+
+model PointTransaction {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  gamificationId Int      @map("gamification_id")
+  action         String // 'sentence', 'paragraph', 'article', 'voice', 'streak_3', 'streak_7', 'streak_30'
+  points         Int
+  description    String?  @db.VarChar(255)
+  refId          Int?     @map("ref_id") // ID de la traduction ou recording
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gamification UserGamification @relation(fields: [gamificationId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([gamificationId])
+  @@index([createdAt])
+  @@map("point_transactions")
+}
+
+model UserBadge {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  gamificationId Int      @map("gamification_id")
+  badge          String // 'first_contribution', 'debutant', 'actif', 'expert', 'maitre', 'streak_3', etc.
+  earnedAt       DateTime @default(now()) @map("earned_at")
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gamification UserGamification @relation(fields: [gamificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badge]) // Un badge unique par user
+  @@index([userId])
+  @@map("user_badges")
 }

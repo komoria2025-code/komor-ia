@@ -13,6 +13,7 @@ import TranslatePage from './translate-page'
 import ModelInfo from './ModelInfo'
 import VoicePage from './voice-page'
 import { useSearchParams } from 'next/navigation'
+import ProfilPage from './profil-page'
 // SUPPRIME l'import ModelPage
 
 export default function DashboardComplete() {
@@ -62,8 +63,8 @@ export default function DashboardComplete() {
         return <ArticlesListPage onArticleClick={handleArticleClick} />
       case 'voice':
         return <VoicePage />
-      // case 'usage':
-      //   return <UsagePage />
+      case 'profil':
+        return <ProfilPage />
 
       case 'settings':
         return <SettingsPage />
