@@ -310,7 +310,7 @@ export default function Sidebar({
 
             {isOpen && (
               <div className="text-xs text-gray-500 text-center">
-                Version 2.1.0
+                Version 2.1.1
               </div>
             )}
           </div>
