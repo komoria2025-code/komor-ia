@@ -377,24 +377,6 @@ export default function TranslatePage({ slug, onBack }) {
               </p>
             )}
           </div>
-          {/* <div className="flex items-center space-x-2">
-            <button
-              onClick={handleManualSave}
-              disabled={saving}
-              className="flex-1 lg:flex-none px-3 py-2 border border-[#1A1A1A] text-[#1A1A1A] rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center space-x-1.5 text-sm"
-            >
-              <BookmarkCheck className="w-4 h-4" />
-              <span>Enregistrer</span>
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={progress < 100 || saving}
-              className="flex-1 lg:flex-none px-3 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#2A2A2A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-1.5 text-sm"
-            >
-              <Save className="w-4 h-4" />
-              <span>Soumettre</span>
-            </button>
-          </div> */}
         </div>
       </header>
 
@@ -403,7 +385,7 @@ export default function TranslatePage({ slug, onBack }) {
       ═══════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden overflow-y-auto">
         {/* ── MOBILE : Accordéon texte original ─────── */}
-        <div className="lg:hidden">
+        {/* <div className="lg:hidden">
           <button
             onClick={() => setOriginalOpen(!originalOpen)}
             className="w-full flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 text-left"
@@ -423,13 +405,63 @@ export default function TranslatePage({ slug, onBack }) {
             />
           </button>
 
-          {/* Contenu accordéon */}
           {originalOpen && (
             <div className="bg-white border-b border-gray-200 px-4 py-4 max-h-64 overflow-y-auto">
               <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap font-serif">
                 {article.originalText}
               </p>
             </div>
+          )}
+        </div> */}
+        {/* ── MOBILE : Texte original ─────── */}
+        <div className="lg:hidden">
+          {article.contentType === 'sentence' ? (
+            // ✅ Phrase courte : toujours visible, mise en valeur
+            <div className="mx-4 mt-4 mb-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Texte original (Français)
+                </span>
+                <span className="text-xs text-gray-400">
+                  {article.estimatedWords} mots · {article.category}
+                </span>
+              </div>
+              <div className="bg-white border-l-4 border-blue-500 rounded-r-xl shadow-sm px-4 py-5">
+                <p className="text-xl leading-relaxed text-gray-900 font-serif font-medium">
+                  {article.originalText}
+                </p>
+              </div>
+            </div>
+          ) : (
+            // Paragraphes / Articles longs : accordéon conservé
+            <>
+              <button
+                onClick={() => setOriginalOpen(!originalOpen)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 text-left"
+              >
+                <div>
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Texte original (Français)
+                  </span>
+                  <span className="text-xs text-gray-400 ml-2">
+                    {article.estimatedWords} mots · {article.category}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform duration-200 ${
+                    originalOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {originalOpen && (
+                <div className="bg-white border-b border-gray-200 px-4 py-4 max-h-64 overflow-y-auto">
+                  <p className="text-base leading-relaxed text-gray-800 whitespace-pre-wrap font-serif">
+                    {article.originalText}
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 
