@@ -113,6 +113,7 @@ model User {
   userGamification  UserGamification?
   pointTransactions PointTransaction[]
   userBadges        UserBadge[]
+  datasets Dataset[]
 
   @@index([email])
   @@map("users")
@@ -623,4 +624,64 @@ model UserBadge {
   @@unique([userId, badge]) // Un badge unique par user
   @@index([userId])
   @@map("user_badges")
+}
+
+
+// Dataset
+
+enum DatasetStatus {
+  draft
+  published
+  archived
+}
+
+enum DatasetLicense {
+  cc0
+  cc_by
+  cc_by_sa
+  cc_by_nc
+  mit
+  apache2
+  custom
+}
+
+enum DownloadType {
+  direct
+  external
+  both
+}
+
+model Dataset {
+  id           Int             @id @default(autoincrement())
+  title        String          @db.VarChar(500)
+  slug         String          @unique
+  description  String          @db.LongText
+  excerpt      String?         @db.Text
+  coverImage   String?         @map("cover_image")
+  tags         Json?
+  language     String          @default("shi")
+  domain       String?
+  license      DatasetLicense  @default(cc_by)
+  status       DatasetStatus   @default(draft)
+  numExamples  Int             @default(0)  @map("num_examples")
+  sizeInMb     Float           @default(0)  @map("size_in_mb")
+  numDownloads Int             @default(0)  @map("num_downloads")
+  downloadType DownloadType    @default(external) @map("download_type")
+  downloadUrl  String?         @map("download_url")
+  fileUrl      String?         @map("file_url")
+  filePublicId String?         @map("file_public_id")
+  format       String?
+  version      String          @default("1.0.0")
+  previewData  Json?           @map("preview_data")
+  bibtex       String?         @db.Text
+  authorId     Int             @map("author_id")
+  publishedAt  DateTime?       @map("published_at")
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt      @map("updated_at")
+
+  author       User            @relation(fields: [authorId], references: [id])
+
+  @@index([slug])
+  @@index([status])
+  @@map("datasets")
 }

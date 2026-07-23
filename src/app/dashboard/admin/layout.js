@@ -13,6 +13,7 @@ import {
   Settings,
   Shield,
   Mic,
+  Database,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -60,7 +61,8 @@ export default function AdminLayout({ children }) {
       label: 'Enregistrements',
       icon: Mic,
     }, // ← NOUVEAU
-
+// Dans sidebar-new.js ou le panel admin
+{ href: '/dashboard/admin/datasets', label: 'Datasets', icon: Database },
     {
       href: '/dashboard/admin/translations',
       label: 'Traductions',

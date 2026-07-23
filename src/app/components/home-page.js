@@ -97,10 +97,10 @@ export default function HomePage({ onSectionChange }) {
               </Link>
 
               <Link
-                href="/contact"
+                href="/datasets"
                 className="inline-flex items-center space-x-2 px-8 py-4 bg-white text-gray-900 border border-gray-300 rounded-lg hover:border-gray-400 transition-all duration-200"
               >
-                <span className="font-medium">Nous contacter</span>
+                <span className="font-medium">Nos datasets</span>
               </Link>
             </div>
 
