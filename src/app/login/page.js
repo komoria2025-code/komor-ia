@@ -243,6 +243,9 @@ export default function LoginPage() {
             >
               Créer un compte
             </Link>
+            <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+  Mot de passe oublié ?
+</Link>
           </p>
         </div>
       </div>

@@ -23,6 +23,82 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState(null)
+  // ✅ States à ajouter
+const [showDeleteModal, setShowDeleteModal] = useState(false)
+const [deletePassword,  setDeletePassword]  = useState('')
+const [deleteLoading,   setDeleteLoading]   = useState(false)
+const [deleteError,     setDeleteError]     = useState('')
+
+// ✅ Composant formulaire mot de passe (dans le composant principal)
+const ChangePasswordForm = () => {
+  const [form,    setForm]    = useState({ current: '', newPwd: '', confirm: '' })
+  const [showPwd, setShowPwd] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState('')
+  const [err,     setErr]     = useState('')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (form.newPwd !== form.confirm) { setErr('Les mots de passe ne correspondent pas'); return }
+    if (form.newPwd.length < 8)       { setErr('Minimum 8 caractères'); return }
+    setLoading(true); setErr(''); setSuccess('')
+    try {
+      const res  = await fetch('/api/user/password', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: form.current, newPassword: form.newPwd }),
+      })
+      const data = await res.json()
+      if (res.ok) { setSuccess('Mot de passe modifié !'); setForm({ current: '', newPwd: '', confirm: '' }) }
+      else setErr(data.message)
+    } catch { setErr('Erreur réseau') }
+    finally { setLoading(false) }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+      {success && <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">{success}</p>}
+      {err     && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{err}</p>}
+      {[
+        { label: 'Mot de passe actuel',           key: 'current' },
+        { label: 'Nouveau mot de passe',           key: 'newPwd' },
+        { label: 'Confirmer le nouveau mot de passe', key: 'confirm' },
+      ].map(field => (
+        <div key={field.key}>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">{field.label}</label>
+          <input type={showPwd ? 'text' : 'password'} required value={form[field.key]}
+            onChange={e => setForm(p => ({ ...p, [field.key]: e.target.value }))}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      ))}
+      <div className="flex items-center space-x-3">
+        <button type="submit" disabled={loading}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm font-medium">
+          {loading ? 'Modification...' : 'Mettre à jour'}
+        </button>
+        <label className="flex items-center space-x-2 text-sm text-gray-500 cursor-pointer">
+          <input type="checkbox" checked={showPwd} onChange={e => setShowPwd(e.target.checked)} className="rounded" />
+          <span>Afficher</span>
+        </label>
+      </div>
+    </form>
+  )
+}
+
+// ✅ Fonction suppression à ajouter
+const handleDeleteAccount = async () => {
+  setDeleteLoading(true); setDeleteError('')
+  try {
+    const res  = await fetch('/api/user/account', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: deletePassword }),
+    })
+    const data = await res.json()
+    if (res.ok) await signOut({ callbackUrl: '/' })
+    else setDeleteError(data.message)
+  } catch { setDeleteError('Erreur réseau') }
+  finally { setDeleteLoading(false) }
+}
 
   // États séparés pour profil et settings
   const [profileData, setProfileData] = useState({
@@ -527,48 +603,113 @@ export default function SettingsPage() {
           </div>
         )
 
+      // case 'security':
+      //   return (
+      //     <div className="space-y-6">
+      //       <div>
+      //         <h3 className="text-lg font-medium text-gray-900 mb-4">
+      //           Changer le mot de passe
+      //         </h3>
+      //         <div className="space-y-4 max-w-md">
+      //           <div>
+      //             <label className="block text-sm font-medium text-gray-700 mb-2">
+      //               Mot de passe actuel
+      //             </label>
+      //             <input
+      //               type="password"
+      //               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      //             />
+      //           </div>
+      //           <div>
+      //             <label className="block text-sm font-medium text-gray-700 mb-2">
+      //               Nouveau mot de passe
+      //             </label>
+      //             <input
+      //               type="password"
+      //               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      //             />
+      //           </div>
+      //           <div>
+      //             <label className="block text-sm font-medium text-gray-700 mb-2">
+      //               Confirmer le mot de passe
+      //             </label>
+      //             <input
+      //               type="password"
+      //               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      //             />
+      //           </div>
+      //           <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+      //             Mettre à jour
+      //           </button>
+      //         </div>
+      //       </div>
+      //     </div>
+      //   )
       case 'security':
-        return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Changer le mot de passe
-              </h3>
-              <div className="space-y-4 max-w-md">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mot de passe actuel
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nouveau mot de passe
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirmer le mot de passe
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  Mettre à jour
-                </button>
+  return (
+    <div className="space-y-8">
+
+      {/* Changer le mot de passe */}
+      <div>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Changer le mot de passe</h3>
+        <ChangePasswordForm />
+      </div>
+
+      {/* Zone danger */}
+      <div className="border-t border-red-200 pt-8">
+        <h3 className="text-lg font-medium text-red-600 mb-4">Zone de danger</h3>
+        <div className="p-5 border border-red-200 rounded-xl bg-red-50">
+          <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+            La suppression de votre compte effacera définitivement votre profil,
+            vos contributions, vos points et tous vos enregistrements.
+            Cette action est <strong>irréversible</strong>.
+          </p>
+          <button onClick={() => setShowDeleteModal(true)}
+            className="px-5 py-2.5 border border-red-400 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition-colors">
+            Supprimer mon compte
+          </button>
+        </div>
+      </div>
+
+      {/* Modal suppression */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-red-600" />
               </div>
+              <h3 className="font-bold text-gray-900">Confirmer la suppression</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              Cette action est irréversible. Entrez votre mot de passe pour confirmer.
+            </p>
+            {deleteError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+                <p className="text-sm text-red-700">{deleteError}</p>
+              </div>
+            )}
+            <input
+              type="password" value={deletePassword}
+              onChange={e => setDeletePassword(e.target.value)}
+              placeholder="Votre mot de passe"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 mb-4"
+            />
+            <div className="flex space-x-3">
+              <button onClick={handleDeleteAccount} disabled={deleteLoading || !deletePassword}
+                className="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50">
+                {deleteLoading ? 'Suppression...' : 'Supprimer définitivement'}
+              </button>
+              <button onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError('') }}
+                className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors">
+                Annuler
+              </button>
             </div>
           </div>
-        )
+        </div>
+      )}
+    </div>
+  )
 
       case 'billing':
         return (
