@@ -3,9 +3,12 @@
 import { useState, useEffect, use } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+
 import TTSDemo from '../../components/tts-demo'
 import {
   Brain, ArrowRight, Code2, Cpu,
+  CheckCircle, Zap, Shield, Globe,
+  Mic, FileText, ChevronRight,
 } from 'lucide-react'
 
 const STATUS_COLORS = {
@@ -15,7 +18,15 @@ const STATUS_COLORS = {
   deprecated:  'bg-gray-100 text-gray-500',
 }
 
+const STATUS_LABELS = {
+  production:  'Production',
+  beta:        'Bêta',
+  development: 'Développement',
+  deprecated:  'Déprécié',
+}
+
 export default function ModelPage({ params }) {
+
   const { slug } = use(params)
   const { data: session } = useSession()
   const [model,   setModel]   = useState(null)
@@ -30,16 +41,18 @@ export default function ModelPage({ params }) {
   }, [slug])
 
   if (loading) return (
-    <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center px-6">
-      <div className="w-10 h-10 border-4 border-gray-900 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-[#FAFAF9]">
+      <div className="flex justify-center py-32">
+        <div className="w-10 h-10 border-4 border-gray-900 border-t-transparent rounded-full animate-spin" />
+      </div>
     </div>
   )
 
   if (!model) return (
-    <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center px-6">
-      <div className="text-center">
+    <div className="min-h-screen bg-[#FAFAF9]">
+      <div className="text-center py-32">
         <p className="text-gray-500">Modèle non trouvé.</p>
-        <Link href="/models" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link href="/models" className="text-blue-600 hover:underline mt-2 block">
           Voir tous les modèles
         </Link>
       </div>
@@ -54,69 +67,118 @@ export default function ModelPage({ params }) {
     ? (typeof model.pricing === 'string' ? JSON.parse(model.pricing) : model.pricing)
     : null
 
+  // Endpoint public affiché dans le curl
+  const publicEndpoint = model.endpoint || `/api/v1/${slug}`
+
   return (
     <div className="min-h-screen bg-[#FAFAF9]">
 
-      {/* Hero */}
-      <section className="bg-white border-b border-gray-200 py-8 sm:py-12 lg:py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-start gap-4 sm:gap-5">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-900 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
-              <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+      {/* ── Hero ─────────────────────────────────── */}
+      <section className="bg-white border-b border-gray-200 py-12 sm:py-16">
+        <div className="max-w-5xl mx-auto px-6 sm:px-8">
+
+          {/* Breadcrumb */}
+          <div className="flex items-center space-x-2 text-sm text-gray-400 mb-6">
+            <Link href="/models" className="hover:text-gray-600 transition-colors">Modèles</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-gray-900">{model.name}</span>
+          </div>
+
+          <div className="flex items-start space-x-5 flex-wrap gap-4">
+            {/* Icône */}
+            <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center flex-shrink-0">
+              {model.domaine?.toLowerCase().includes('speech') ||
+               model.domaine?.toLowerCase().includes('tts') ||
+               model.domaine?.toLowerCase().includes('vocal')
+                ? <Mic className="w-8 h-8 text-white" />
+                : model.domaine?.toLowerCase().includes('text') ||
+                  model.domaine?.toLowerCase().includes('nlp')
+                  ? <FileText className="w-8 h-8 text-white" />
+                  : <Brain className="w-8 h-8 text-white" />
+              }
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center flex-wrap gap-2 sm:gap-3 mb-2">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 break-words">
-                  {model.name}
-                </h1>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap ${STATUS_COLORS[model.status] || STATUS_COLORS.development}`}>
-                  {model.status?.toUpperCase()}
+              <div className="flex items-center flex-wrap gap-3 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{model.name}</h1>
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${STATUS_COLORS[model.status] || STATUS_COLORS.development}`}>
+                  {STATUS_LABELS[model.status] || model.status}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3">
+              <p className="text-sm text-gray-500 mb-3">
                 v{model.version} · {model.domaine}
               </p>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed max-w-2xl">
+              <p className="text-gray-600 leading-relaxed max-w-2xl">
                 {model.description}
               </p>
+
+              {/* Badges */}
+              <div className="flex items-center flex-wrap gap-2 mt-4">
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                  <Zap className="w-3 h-3" />
+                  <span>v{model.version}</span>
+                </span>
+                {model.endpoint && (
+                  <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                    <CheckCircle className="w-3 h-3" />
+                    <span>Endpoint disponible</span>
+                  </span>
+                )}
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  <Globe className="w-3 h-3" />
+                  <span>Comores · Shikomori</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contenu */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      {/* ── Contenu principal ────────────────────── */}
+      <div className="max-w-5xl mx-auto px-6 sm:px-8 py-10">
+        <div className="grid lg:grid-cols-3 gap-8">
 
-          {/* Colonne principale */}
-          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
+          {/* ── Colonne principale ────────────────── */}
+          <div className="lg:col-span-2 space-y-6">
 
-            {/* Features */}
+            {/* Caractéristiques */}
             {Object.keys(features).length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6">
+              <div className="bg-white rounded-2xl border border-gray-200 p-6">
                 <h2 className="font-semibold text-gray-900 mb-4">Caractéristiques</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                <div className="divide-y divide-gray-50 text-sm">
                   {Object.entries(features).map(([key, value], i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center py-2.5 border-b border-gray-50 sm:border-b-0 sm:py-2 last:border-b-0"
-                    >
-                      <span className="text-sm text-gray-500 capitalize">{key.replace(/_/g, ' ')}</span>
-                      <span className="text-sm font-medium text-gray-900 text-right ml-4">{String(value)}</span>
+                    <div key={i} className="flex justify-between py-2.5">
+                      <span className="text-gray-500 capitalize">{key.replace(/_/g, ' ')}</span>
+                      <span className="font-medium text-gray-900 text-right ml-4">{String(value)}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Demo TTS — affiché uniquement pour komori-tts */}
+            {/* Utilisation — exemple curl */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <h2 className="font-semibold text-gray-900 mb-4">Utilisation</h2>
+              <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-gray-400 font-mono">API Request</span>
+                </div>
+                <pre className="text-xs text-green-400 font-mono leading-relaxed whitespace-pre-wrap">
+{`curl -X POST https://api.komor-ia.com${publicEndpoint} \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"texte": "Bariza lewo ?"}'`}
+                </pre>
+              </div>
+            </div>
+
+            {/* ✅ Demo TTS — uniquement pour komori-tts */}
             {model.slug === 'komori-tts' && <TTSDemo />}
 
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-4 order-1 lg:order-2 lg:sticky lg:top-6 lg:self-start">
+          {/* ── Sidebar droite ────────────────────── */}
+          <div className="space-y-4">
 
             {/* Accès API */}
             <div className="bg-gray-900 rounded-2xl p-5 text-white">
@@ -129,12 +191,12 @@ export default function ModelPage({ params }) {
               </p>
               {session ? (
                 <Link href="/?section=api-keys"
-                  className="block text-center px-4 py-2.5 bg-white text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-100 active:scale-[0.98] transition-all">
+                  className="block text-center px-4 py-2.5 bg-white text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors">
                   Obtenir une clé API →
                 </Link>
               ) : (
                 <Link href="/signup"
-                  className="block text-center px-4 py-2.5 bg-white text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-100 active:scale-[0.98] transition-all">
+                  className="block text-center px-4 py-2.5 bg-white text-gray-900 rounded-xl text-sm font-medium hover:bg-gray-100 transition-colors">
                   Créer un compte gratuit →
                 </Link>
               )}
@@ -155,7 +217,34 @@ export default function ModelPage({ params }) {
               </div>
             )}
 
-            {/* Voir tous les modèles */}
+            {/* Améliorer le modèle — uniquement pour modèles avec corpus */}
+            {(model.slug === 'komori-tts' || model.domaine?.toLowerCase().includes('speech')) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm">Améliorer le modèle</h3>
+                <p className="text-xs text-gray-600 mb-3 leading-relaxed">
+                  Contribuez au corpus vocal pour améliorer la qualité de ce modèle.
+                </p>
+                <Link href="/?section=voice"
+                  className="block text-center px-4 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors">
+                  Contribuer au corpus →
+                </Link>
+              </div>
+            )}
+
+            {/* Documentation */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm">Documentation</h3>
+              <p className="text-xs text-gray-500 mb-3">
+                Consultez la documentation complète pour intégrer {model.name}.
+              </p>
+              <Link href="/docs"
+                className="flex items-center space-x-1 text-sm text-blue-600 hover:underline">
+                <span>Voir la documentation</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {/* Tous les modèles */}
             <Link href="/models"
               className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-2xl hover:border-gray-300 hover:shadow-sm transition-all group">
               <div className="flex items-center space-x-3">
@@ -167,6 +256,7 @@ export default function ModelPage({ params }) {
           </div>
         </div>
       </div>
+
     </div>
   )
 }

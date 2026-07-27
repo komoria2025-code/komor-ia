@@ -78,7 +78,7 @@ const ttsRes = await fetch('https://shikimori-tts-production.up.railway.app/tts'
   method:  'POST',
   headers: { 'Content-Type': 'application/json' },
   body:    JSON.stringify({ text: texte.trim() }), // ← "text" pas "texte"
-  signal:  AbortSignal.timeout(35_000),
+  signal:  AbortSignal.timeout(60_000),
 })
 
     const responseTime = Date.now() - start
