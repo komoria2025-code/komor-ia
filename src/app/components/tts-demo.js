@@ -282,11 +282,11 @@ export default function TTSDemo() {
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Texte en shikomori
-                <span className="text-gray-400 font-normal ml-2">({texte.length}/300)</span>
+                <span className="text-gray-400 font-normal ml-2">({texte.length}/100)</span>
               </label>
               <textarea
                 value={texte}
-                onChange={e => setTexte(e.target.value.slice(0, 300))}
+                onChange={e => setTexte(e.target.value.slice(0, 100))}
                 placeholder="Entrez du texte en shikomori que vous voulez entendre..."
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none font-serif"
