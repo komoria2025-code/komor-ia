@@ -1,14 +1,55 @@
 import prisma from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
+// export async function GET(req) {
+//   try {
+//     const { searchParams } = new URL(req.url)
+//     const status = searchParams.get('status')
+//     const isPublic = searchParams.get('public')
+
+//     const where = {}
+//     if (status) where.status = status
+//     if (isPublic === 'true') where.isPublic = true
+
+//     const models = await prisma.modele.findMany({
+//       where,
+//       orderBy: { createdAt: 'desc' },
+//     })
+
+//     // ✅ PAS de JSON.parse - Prisma retourne déjà des objets
+//     return NextResponse.json({
+//       success: true,
+//       models: models,
+//       count: models.length,
+//     })
+//   } catch (error) {
+//     console.error('Erreur GET /api/models:', error)
+//     return NextResponse.json(
+//       {
+//         success: false,
+//         message: 'Erreur serveur',
+//         error:
+//           process.env.NODE_ENV === 'development' ? error.message : undefined,
+//       },
+//       { status: 500 },
+//     )
+//   }
+// }
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get('status')
+    const status   = searchParams.get('status')
     const isPublic = searchParams.get('public')
 
     const where = {}
-    if (status) where.status = status
+
+    // ✅ Supporter les valeurs multiples : "production,beta"
+    if (status) {
+      where.status = status.includes(',')
+        ? { in: status.split(',') }
+        : status
+    }
+
     if (isPublic === 'true') where.isPublic = true
 
     const models = await prisma.modele.findMany({
@@ -16,10 +57,9 @@ export async function GET(req) {
       orderBy: { createdAt: 'desc' },
     })
 
-    // ✅ PAS de JSON.parse - Prisma retourne déjà des objets
     return NextResponse.json({
       success: true,
-      models: models,
+      models,
       count: models.length,
     })
   } catch (error) {
@@ -28,8 +68,7 @@ export async function GET(req) {
       {
         success: false,
         message: 'Erreur serveur',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
       },
       { status: 500 },
     )

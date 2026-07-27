@@ -164,7 +164,7 @@ export default function ModelPage({ params }) {
                   <span className="text-xs text-gray-400 font-mono">API Request</span>
                 </div>
                 <pre className="text-xs text-green-400 font-mono leading-relaxed whitespace-pre-wrap">
-{`curl -X POST https://api.komor-ia.com${publicEndpoint} \\
+{`curl -X POST https://komor-ia.com${publicEndpoint} \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"texte": "Bariza lewo ?"}'`}

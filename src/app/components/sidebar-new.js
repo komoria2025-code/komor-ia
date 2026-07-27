@@ -37,7 +37,8 @@ export default function Sidebar({
 
   const fetchModels = async () => {
     try {
-      const response = await fetch('/api/models?status=production&public=true')
+      // const response = await fetch('/api/models?status=production&public=true')
+      const response = await fetch('/api/models?status=production,beta&public=true')
       if (response.ok) {
         const data = await response.json()
         console.log('data', data)

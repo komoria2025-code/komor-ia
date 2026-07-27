@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  ArrowRight,
+ ArrowRight,
   Brain,
   Zap,
   Globe,
@@ -10,6 +10,11 @@ import {
   CheckCircle,
   TrendingUp,
   Users,
+  Bot,
+  MessageSquare,
+  FileText,
+  Languages,
+  Mic,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
@@ -21,13 +26,15 @@ export default function HomePage({ onSectionChange }) {
   const [models, setModels] = useState([])
   const [loading, setLoading] = useState(true)
 
+  
+
   useEffect(() => {
     fetchModels()
   }, [])
 
   const fetchModels = async () => {
     try {
-      const response = await fetch('/api/models?status=production&public=true')
+      const response = await fetch('/api/models?status=production,beta&public=true')
       const data = await response.json()
 
       if (data.success) {
@@ -40,17 +47,18 @@ export default function HomePage({ onSectionChange }) {
     }
   }
 
-  const getModelEmoji = (icon) => {
-    const emojis = {
-      Brain: '🧠',
-      Bot: '🤖',
-      MessageSquare: '💬',
-      FileText: '📰',
-      Languages: '🌐',
-      Zap: '⚡',
-    }
-    return emojis[icon] || '🤖'
+const getModelIcon = (icon) => {
+  const icons = {
+    Brain,
+    Bot,
+    MessageSquare,
+    FileText,
+    Languages,
+    Zap,
+    Mic,
   }
+  return icons[icon] || Bot
+}
 
   return (
     <div className="min-h-screen bg-[#FAFAF9]">
@@ -197,7 +205,7 @@ export default function HomePage({ onSectionChange }) {
             </div>
           ) : (
             <>
-              <div className="grid lg:grid-cols-2 gap-8 mb-16">
+              {/* <div className="grid lg:grid-cols-2 gap-8 mb-16">
                 {models.map((model) => (
                   <div
                     key={model.id}
@@ -262,7 +270,73 @@ export default function HomePage({ onSectionChange }) {
                     </Link>
                   </div>
                 ))}
-              </div>
+              </div> */}
+              <div className="grid lg:grid-cols-2 gap-8 mb-16">
+  {models.map((model) => {
+    const IconComponent = getModelIcon(model.icon)
+    return (
+      <div
+        key={model.id}
+        className="group bg-white border border-gray-200 rounded-2xl p-10 hover:shadow-lg transition-all duration-300"
+      >
+        <div className="flex items-start justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 rounded-xl bg-gray-900 flex items-center justify-center flex-shrink-0">
+              <IconComponent className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-medium text-gray-900">
+                {model.name}
+              </h3>
+              <span
+                className={`inline-block mt-1 px-3 py-1 text-xs font-medium rounded-full ${
+                  model.status === 'production'
+                    ? 'bg-green-50 text-green-700'
+                    : model.status === 'beta'
+                      ? 'bg-blue-50 text-blue-700'
+                      : 'bg-yellow-50 text-yellow-700'
+                }`}
+              >
+                {model.status === 'production'
+                  ? 'Production'
+                  : model.status === 'beta'
+                    ? 'Beta'
+                    : 'Développement'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-gray-600 mb-8 leading-relaxed font-light">
+          {model.description}
+        </p>
+
+        {model.features && (
+          <div className="space-y-3 mb-8">
+            {Object.entries(model.features)
+              .slice(0, 3)
+              .map(([key, value], i) => (
+                <div key={i} className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-gray-400" />
+                  <span className="text-gray-600 font-light">
+                    {key.replace(/_/g, ' ')}
+                  </span>
+                </div>
+              ))}
+          </div>
+        )}
+
+        <Link
+          href={`/models/${model.slug}`}
+          className="inline-flex items-center space-x-2 text-gray-900 font-medium group-hover:underline"
+        >
+          <span>Découvrir {model.name}</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Link>
+      </div>
+    )
+  })}
+</div>
 
               <div className="text-center">
                 <Link
