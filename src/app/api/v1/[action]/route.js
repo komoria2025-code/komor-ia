@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { authenticateApiRequest } from '@/lib/api-auth'
+import { authenticateApiRequest } from '@/lib/api-auth' 
 import { logApiUsage, estimateTokens } from '@/lib/api-logger'
 
 /**

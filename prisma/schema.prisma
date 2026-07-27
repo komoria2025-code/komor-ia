@@ -310,29 +310,56 @@ model ApiKey {
   @@map("api_keys")
 }
 
+// model UsageLog {
+//   id           Int      @id @default(autoincrement())
+//   userId       Int      @map("user_id")
+//   apiKeyId     Int      @map("api_key_id")
+//   modeleId     Int      @map("modele_id")
+//   endpoint     String
+//   method       String   @default("POST")
+//   statusCode   Int      @map("status_code")
+//   responseTime Int      @map("response_time")
+//   tokens       Int      @default(0)
+//   cost         Float    @default(0.0)
+//   metadata     Json?
+//   createdAt    DateTime @default(now()) @map("created_at")
+
+//   // Relations
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+//   modele Modele @relation(fields: [modeleId], references: [id], onDelete: Cascade)
+
+//   @@index([userId])
+//   @@index([apiKeyId])
+//   @@index([modeleId])
+//   @@index([createdAt])
+//   @@map("usage_logs")
+// }
 model UsageLog {
   id           Int      @id @default(autoincrement())
-  userId       Int      @map("user_id")
-  apiKeyId     Int      @map("api_key_id")
-  modeleId     Int      @map("modele_id")
+  userId       Int?     @map("user_id")       // ✅ nullable — visiteurs non connectés
+  apiKeyId     Int?     @map("api_key_id")    // ✅ nullable — appels sans clé
+  modeleId     Int?     @map("modele_id")     // ✅ nullable — sécurité
   endpoint     String
   method       String   @default("POST")
   statusCode   Int      @map("status_code")
   responseTime Int      @map("response_time")
   tokens       Int      @default(0)
   cost         Float    @default(0.0)
+  ipAddress    String?  @map("ip_address")    // ✅ NOUVEAU
   metadata     Json?
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt    DateTime @default(now())       @map("created_at")
 
-  // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
-  modele Modele @relation(fields: [modeleId], references: [id], onDelete: Cascade)
+  // Relations — optionnelles maintenant
+  user   User?   @relation(fields: [userId],   references: [id], onDelete: Cascade)
+  apiKey ApiKey? @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  modele Modele? @relation(fields: [modeleId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([apiKeyId])
   @@index([modeleId])
   @@index([createdAt])
+  @@index([ipAddress])  // ✅ NOUVEAU
   @@map("usage_logs")
 }
 
@@ -700,3 +727,6 @@ model PasswordResetToken {
 
   @@map("password_reset_tokens")
 }
+
+
+

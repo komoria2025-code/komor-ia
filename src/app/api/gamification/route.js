@@ -1,7 +1,7 @@
 // src/app/api/gamification/route.js
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '../../../lib/auth' 
 import { getUserGamification } from '@/lib/gamification'
 
 export async function GET(req) {
