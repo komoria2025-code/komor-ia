@@ -86,7 +86,7 @@ function AnzizaAvatar({ isSpeaking }) {
 
       {/* Nom + info */}
       <div className="text-center mt-3">
-        <h3 className="text-lg font-bold text-gray-900">Anziza</h3>
+        <h3 className="text-lg font-bold text-gray-900">Djaida</h3>
         <p className="text-xs text-indigo-600 font-medium">Voix shikomori · Shingazidja</p>
         <div className="flex items-center justify-center space-x-1.5 mt-1.5">
           <div className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-green-400 animate-pulse' : 'bg-gray-300'}`} />
@@ -171,7 +171,7 @@ export default function TTSDemo() {
     if (!audioUrl) return
     const a = document.createElement('a')
     a.href     = audioUrl
-    a.download = `anziza-${Date.now()}.wav`
+    a.download = `djaida-${Date.now()}.wav`
     a.click()
   }
 
@@ -205,10 +205,10 @@ export default function TTSDemo() {
                 <Lock className="w-6 h-6 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
-                Connectez-vous pour écouter Anziza
+                Connectez-vous pour écouter Djaida
               </h3>
               <p className="text-gray-500 text-sm leading-relaxed mb-6">
-                Anziza est notre voix shikomori. Pour l'entendre parler en shingazidja,
+                Djaida est notre voix shikomori. Pour l'entendre parler en shingazidja,
                 vous devez créer un compte gratuit sur Komor-IA.
               </p>
               <div className="space-y-3">
@@ -320,7 +320,7 @@ export default function TTSDemo() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
                     <Waves className="w-4 h-4 text-indigo-600" />
-                    <span className="text-sm font-medium text-indigo-800">Audio généré par Anziza</span>
+                    <span className="text-sm font-medium text-indigo-800">Audio généré par Djaida</span>
                   </div>
                   <button onClick={handleDownload}
                     className="flex items-center space-x-1 text-xs text-indigo-600 hover:text-indigo-800 transition-colors">
@@ -347,9 +347,9 @@ export default function TTSDemo() {
               className="w-full flex items-center justify-center space-x-2 px-6 py-3.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
             >
               {loading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /><span>Anziza prépare sa voix...</span></>
+                <><Loader2 className="w-4 h-4 animate-spin" /><span>Djaida prépare sa voix...</span></>
               ) : (
-                <><Volume2 className="w-4 h-4" /><span>Faire parler Anziza</span></>
+                <><Volume2 className="w-4 h-4" /><span>Faire parler Djaida</span></>
               )}
             </button>
 
