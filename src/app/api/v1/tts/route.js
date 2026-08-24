@@ -12,7 +12,7 @@ const LIMITS_BY_ROLE = {
   developer:   50,
   linguiste:   30,
   translator:  20,
-  partner:    20,
+  partner:    50,
   journaliste: 10,
   user:        3,
   anonymous:   3, // non connecté → par IP
