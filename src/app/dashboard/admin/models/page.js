@@ -25,6 +25,7 @@ export default function ModelsManagement() {
     status: 'development',
     version: '1.0.0',
     endpoint: '',
+    usageInstructions: '',
     icon: 'Brain',
     color: 'blue',
     isPublic: true,
@@ -78,6 +79,7 @@ export default function ModelsManagement() {
           status: 'development',
           version: '1.0.0',
           endpoint: '',
+          usageInstructions: '',
           icon: 'Brain',
           color: 'blue',
           isPublic: true,
@@ -118,6 +120,7 @@ export default function ModelsManagement() {
       status: model.status,
       version: model.version,
       endpoint: model.endpoint || '',
+      usageInstructions: model.usageInstructions || '',
       icon: model.icon || 'Brain',
       color: model.color || 'blue',
       isPublic: model.isPublic,
@@ -365,6 +368,21 @@ export default function ModelsManagement() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Instructions d'utilisation
+                </label>
+                <textarea
+                  value={formData.usageInstructions}
+                  onChange={(e) =>
+                    setFormData({ ...formData, usageInstructions: e.target.value })
+                  }
+                  rows={6}
+                  placeholder="Exemple de commande ou instructions pour utiliser ce modèle..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
               <div className="flex items-center space-x-2">

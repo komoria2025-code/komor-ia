@@ -156,9 +156,14 @@ export default function ModelPage({ params }) {
               </div>
             )}
 
-            {/* Utilisation — exemple curl */}
+            {/* Utilisation — instructions et exemple curl */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h2 className="font-semibold text-gray-900 mb-4">Utilisation</h2>
+              {model.usageInstructions && (
+                <div className="mb-5 text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">
+                  {model.usageInstructions}
+                </div>
+              )}
               <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs text-gray-400 font-mono">API Request</span>
