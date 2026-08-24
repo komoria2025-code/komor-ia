@@ -249,9 +249,9 @@ export default function ModelPage({ params }) {
               <p className="text-xs text-gray-500 mb-3">
                 Consultez la documentation complète pour intégrer {model.name}.
               </p>
-              <Link href="/docs"
+              <Link href={`/docs/models/${model.slug}`}
                 className="flex items-center space-x-1 text-sm text-blue-600 hover:underline">
-                <span>Voir la documentation</span>
+                <span>Documentation de {model.name}</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

@@ -149,6 +149,7 @@ model Modele {
   status      ModelStatus @default(development)
   endpoint    String?
   usageInstructions String? @map("usage_instructions") @db.Text
+  documentationContent String? @map("documentation_content") @db.Text
   icon        String?     @default("Brain")
   color       String?     @default("blue")
   isPublic    Boolean     @default(true) @map("is_public")

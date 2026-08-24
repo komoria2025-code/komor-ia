@@ -26,6 +26,7 @@ export default function ModelsManagement() {
     version: '1.0.0',
     endpoint: '',
     usageInstructions: '',
+    documentationContent: '',
     icon: 'Brain',
     color: 'blue',
     isPublic: true,
@@ -80,6 +81,7 @@ export default function ModelsManagement() {
           version: '1.0.0',
           endpoint: '',
           usageInstructions: '',
+          documentationContent: '',
           icon: 'Brain',
           color: 'blue',
           isPublic: true,
@@ -121,6 +123,7 @@ export default function ModelsManagement() {
       version: model.version,
       endpoint: model.endpoint || '',
       usageInstructions: model.usageInstructions || '',
+      documentationContent: model.documentationContent || '',
       icon: model.icon || 'Brain',
       color: model.color || 'blue',
       isPublic: model.isPublic,
@@ -382,6 +385,21 @@ export default function ModelsManagement() {
                   rows={6}
                   placeholder="Exemple de commande ou instructions pour utiliser ce modèle..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Documentation du modèle (Markdown)
+                </label>
+                <textarea
+                  value={formData.documentationContent}
+                  onChange={(e) =>
+                    setFormData({ ...formData, documentationContent: e.target.value })
+                  }
+                  rows={12}
+                  placeholder={'# Présentation\n\n## Paramètres\n\nDécrivez ici le fonctionnement du modèle...'}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
