@@ -29,6 +29,7 @@ enum UserRole {
   journaliste
   translator
   linguiste
+  partner
 }
 
 enum Dialecte {

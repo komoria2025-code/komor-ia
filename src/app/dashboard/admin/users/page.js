@@ -94,6 +94,7 @@ export default function UsersManagement() {
       translator: 'bg-blue-100 text-blue-700',
       journaliste: 'bg-green-100 text-green-700',
       linguiste: 'bg-indigo-100 text-indigo-700',
+      partner: 'bg-yellow-100 text-yellow-700',
       user: 'bg-gray-100 text-gray-700',
     }
     return badges[role] || badges.user
@@ -116,6 +117,7 @@ export default function UsersManagement() {
       translator: 'Traducteur',
       journaliste: 'Journaliste',
       linguiste: 'Linguiste',
+      partner: 'Partenaire',
       user: 'Utilisateur',
     }
     return labels[role] || role
@@ -167,6 +169,7 @@ export default function UsersManagement() {
             <option value="journaliste">Journalistes</option>
             <option value="user">Utilisateurs</option>
             <option value="linguiste">Linguiste</option>
+            <option value="partner">Partenaires</option>
           </select>
         </div>
       </div>
@@ -246,6 +249,7 @@ export default function UsersManagement() {
                         <option value="translator">Traducteur</option>
                         <option value="journaliste">Journaliste</option>
                         <option value="linguiste">Linguiste</option>
+                        <option value="partner">Partenaire</option>
                         <option value="admin">Admin</option>
                       </select>
                     </td>
