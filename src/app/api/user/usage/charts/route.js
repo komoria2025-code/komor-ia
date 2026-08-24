@@ -75,7 +75,7 @@ export async function GET(req) {
     // 2. Données par modèle
     const modelStats = {}
     logs.forEach((log) => {
-      const modelName = log.modele.name
+      const modelName = log.modele?.name || 'Modèle inconnu'
       if (!modelStats[modelName]) {
         modelStats[modelName] = { tokens: 0, requests: 0 }
       }

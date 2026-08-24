@@ -117,10 +117,10 @@ export default function UsagePage() {
     const headers = ['Date', 'Modèle', 'Endpoint', 'Tokens', 'Coût', 'Status']
     const rows = logs.map((log) => [
       new Date(log.createdAt).toLocaleString('fr-FR'),
-      log.modele.name,
+      log.modele?.name || 'Modèle inconnu',
       log.endpoint,
-      log.tokens,
-      `$${log.cost.toFixed(4)}`,
+      log.tokens ?? 0,
+      `$${(log.cost ?? 0).toFixed(4)}`,
       log.statusCode,
     ])
 
@@ -422,16 +422,16 @@ export default function UsagePage() {
                           })}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {log.modele.name}
+                          {log.modele?.name || 'Modèle inconnu'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                           {log.endpoint}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {log.tokens.toLocaleString()}
+                          {(log.tokens ?? 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          €{log.cost.toFixed(4)}
+                          €{(log.cost ?? 0).toFixed(4)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {log.responseTime}ms
