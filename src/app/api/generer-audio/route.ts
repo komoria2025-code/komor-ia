@@ -22,6 +22,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const internalSecret = process.env.TTS_INTERNAL_SECRET;
+  if (!internalSecret) {
+    console.error("TTS_INTERNAL_SECRET n'est pas défini.");
+    return NextResponse.json(
+      { erreur: "Service temporairement indisponible." },
+      { status: 503 }
+    );
+  }
+
   let texte: string;
   try {
     const body = await request.json();
@@ -44,7 +53,10 @@ export async function POST(request: NextRequest) {
   try {
     const reponse = await fetch(`${TTS_SERVER_URL}/generer-audio`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-Secret": internalSecret,
+      },
       body: JSON.stringify({ texte: texte.trim() }),
       // Évite d'attendre indéfiniment si le serveur TTS ne répond pas
       signal: AbortSignal.timeout(30_000), // 30s max

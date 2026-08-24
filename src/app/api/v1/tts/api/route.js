@@ -71,15 +71,27 @@ export async function POST(req) {
       )
     }
 
-    // ── Appeler le proxy interne ─────────────────────────
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-   // Même correction — appel direct Railway
-const ttsRes = await fetch('https://shikimori-tts-production.up.railway.app/tts', {
-  method:  'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body:    JSON.stringify({ text: texte.trim() }), // ← "text" pas "texte"
-  signal:  AbortSignal.timeout(60_000),
-})
+    // ── Appeler le service TTS ──────────────────────────
+    const ttsUrl =
+      process.env.TTS_SERVER_URL ||
+      'https://shikimori-tts-production.up.railway.app'
+    const internalSecret = process.env.TTS_INTERNAL_SECRET
+    if (!internalSecret) {
+      console.error('TTS_INTERNAL_SECRET n\'est pas configuré.')
+      return NextResponse.json(
+        { erreur: 'Service temporairement indisponible.' },
+        { status: 503 },
+      )
+    }
+    const ttsRes = await fetch(`${ttsUrl}/generer-audio`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': internalSecret,
+      },
+      body: JSON.stringify({ texte: texte.trim() }),
+      signal: AbortSignal.timeout(60_000),
+    })
 
     const responseTime = Date.now() - start
     const statusCode   = ttsRes.ok ? 200 : ttsRes.status

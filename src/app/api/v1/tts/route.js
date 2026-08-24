@@ -113,12 +113,24 @@ export async function POST(req) {
 
   // ── Appeler Railway ──────────────────────────────────
   const TTS_URL = process.env.TTS_SERVER_URL || 'https://shikimori-tts-production.up.railway.app'
+  const internalSecret = process.env.TTS_INTERNAL_SECRET
+
+  if (!internalSecret) {
+    console.error('TTS_INTERNAL_SECRET n\'est pas configuré.')
+    return NextResponse.json(
+      { erreur: 'Service temporairement indisponible.' },
+      { status: 503 },
+    )
+  }
 
   let ttsRes
   try {
     ttsRes = await fetch(`${TTS_URL}/generer-audio`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Secret': internalSecret,
+      },
       body:    JSON.stringify({ texte: texte.trim() }),
       signal:  AbortSignal.timeout(35_000),
     })
