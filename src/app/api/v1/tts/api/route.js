@@ -7,6 +7,7 @@ const TTS_MAX_CHARS = 300
 
 export async function POST(req) {
   const start = Date.now()
+  let stage = 'authentification'
 
   try {
     // ── Vérifier la clé API ──────────────────────────────
@@ -19,6 +20,7 @@ export async function POST(req) {
       )
     }
 
+    stage = 'lecture de la clé API'
     const apiKey = await prisma.apiKey.findUnique({
       where:   { key: apiKeyHeader },
       include: { user: true, modele: true },
@@ -42,6 +44,7 @@ export async function POST(req) {
     // Vérifier rate limit de la clé
     const today = new Date()
     today.setHours(0, 0, 0, 0)
+    stage = 'vérification du quota'
     const dailyUsage = await prisma.usageLog.count({
       where: {
         apiKeyId:  apiKey.id,
@@ -58,6 +61,7 @@ export async function POST(req) {
     }
 
     // ── Valider le texte ─────────────────────────────────
+    stage = 'lecture du corps de la requête'
     const body  = await req.json()
     const { texte } = body
 
@@ -83,6 +87,7 @@ export async function POST(req) {
         { status: 503 },
       )
     }
+    stage = 'appel du service TTS'
     const ttsRes = await fetch(`${ttsUrl}/generer-audio`, {
       method: 'POST',
       headers: {
@@ -97,6 +102,7 @@ export async function POST(req) {
     const statusCode   = ttsRes.ok ? 200 : ttsRes.status
 
     // ── Logger + mettre à jour lastUsed ─────────────────
+    stage = 'enregistrement de l’utilisation'
     await Promise.all([
       prisma.usageLog.create({
         data: {
@@ -134,7 +140,11 @@ export async function POST(req) {
       },
     })
   } catch (error) {
-    console.error('Erreur TTS API:', error)
+    console.error('Erreur TTS API:', {
+      stage,
+      name: error instanceof Error ? error.name : 'UnknownError',
+      message: error instanceof Error ? error.message : String(error),
+    })
     return NextResponse.json(
       { erreur: 'Service temporairement indisponible.' },
       { status: 503 }
