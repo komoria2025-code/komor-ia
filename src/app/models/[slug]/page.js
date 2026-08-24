@@ -160,8 +160,15 @@ export default function ModelPage({ params }) {
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <h2 className="font-semibold text-gray-900 mb-4">Utilisation</h2>
               {model.usageInstructions && (
-                <div className="mb-5 text-sm text-gray-600 whitespace-pre-wrap leading-relaxed">
-                  {model.usageInstructions}
+                <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto mb-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-gray-400 font-mono">
+                      Instructions
+                    </span>
+                  </div>
+                  <pre className="text-xs text-green-400 font-mono leading-relaxed whitespace-pre-wrap">
+                    {model.usageInstructions}
+                  </pre>
                 </div>
               )}
               <div className="bg-gray-900 rounded-xl p-4 overflow-x-auto">
