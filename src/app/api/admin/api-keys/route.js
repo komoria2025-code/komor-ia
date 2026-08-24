@@ -24,9 +24,9 @@ export async function GET(req) {
 
     const where = {}
     if (status === 'active') {
-      where.isRevoked = false
+      where.isActive = true
     } else if (status === 'revoked') {
-      where.isRevoked = true
+      where.isActive = false
     }
 
     const apiKeys = await prisma.apiKey.findMany({

@@ -128,7 +128,7 @@ export default function ApiKeysManagement() {
           key.name,
           key.user?.email || '',
           key.modele?.name || '',
-          key.isRevoked ? 'Révoquée' : 'Active',
+          key.isActive ? 'Active' : 'Révoquée',
           key._count?.usageLogs || 0,
           new Date(key.createdAt).toLocaleDateString(),
         ].join(','),
@@ -300,7 +300,7 @@ export default function ApiKeysManagement() {
                       {apiKey.modele?.name || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {apiKey.isRevoked ? (
+                      {!apiKey.isActive ? (
                         <span className="inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
                           <Ban className="w-3 h-3" />
                           <span>Révoquée</span>
@@ -321,7 +321,7 @@ export default function ApiKeysManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {apiKey.rateLimit} / heure
+                      {apiKey.rateLimit} / jour
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
@@ -335,7 +335,7 @@ export default function ApiKeysManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
-                        {!apiKey.isRevoked && (
+                        {apiKey.isActive && (
                           <button
                             onClick={() => handleRevoke(apiKey.id)}
                             className="text-orange-600 hover:text-orange-900 p-2 hover:bg-orange-50 rounded-lg"

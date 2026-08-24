@@ -24,8 +24,7 @@ export async function POST(req, { params }) {
     const apiKey = await prisma.apiKey.update({
       where: { id: parseInt(id) },
       data: {
-        isRevoked: true,
-        revokedAt: new Date(),
+        isActive: false,
       },
     })
 

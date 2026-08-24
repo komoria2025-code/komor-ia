@@ -21,9 +21,9 @@ export async function GET(req) {
 
     const [total, active, revoked, totalRequests] = await Promise.all([
       prisma.apiKey.count(),
-      prisma.apiKey.count({ where: { isRevoked: false } }),
-      prisma.apiKey.count({ where: { isRevoked: true } }),
-      prisma.usageLog.count(),
+      prisma.apiKey.count({ where: { isActive: true } }),
+      prisma.apiKey.count({ where: { isActive: false } }),
+      prisma.usageLog.count({ where: { apiKeyId: { not: null } } }),
     ])
 
     return NextResponse.json({
