@@ -14,6 +14,7 @@ export async function GET(req) {
     const contentType = searchParams.get('contentType') || 'article' // ✅ NOUVEAU
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100)
     const offset = parseInt(searchParams.get('offset') || '0')
+    const isFirstPage = offset === 0
 
     const where = {
       isPublic: true,
@@ -83,16 +84,23 @@ export async function GET(req) {
           }),
         },
         orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
-        take: limit,
-        skip: offset,
+        take: isFirstPage ? Math.max(limit - inProgressArticles.length, 0) : limit,
+        skip: Math.max(offset - inProgressArticles.length, 0),
       }),
       prisma.article.count({ where }),
     ])
 
-    const articles = [...inProgressArticles, ...otherArticles]
+    const articles = [
+      ...(isFirstPage ? inProgressArticles : []),
+      ...otherArticles,
+    ]
+
+    const uniqueArticles = Array.from(
+      new Map(articles.map((article) => [article.id, article])).values(),
+    )
 
     return NextResponse.json({
-      articles,
+      articles: uniqueArticles,
       total,
       limit,
       offset,

@@ -37,15 +37,10 @@
 
 //       const params = new URLSearchParams()
 //       if (filterStatus !== 'all') params.append('status', filterStatus)
-//       if (filterCategory !== 'all') params.append('category', filterCategory)
-//       params.append('limit', LIMIT)
 //       params.append('offset', reset ? 0 : offset)
 
 //       const res = await fetch(`/api/articles?${params}`)
 //       const data = await res.json()
-
-//       if (res.ok) {
-//         const newArticles = data.articles || []
 //         setArticles((prev) => (reset ? newArticles : [...prev, ...newArticles]))
 //         setHasMore(offset + LIMIT < data.total)
 //         setOffset((prev) => prev + LIMIT)
@@ -451,6 +446,10 @@ export default function ArticlesListPage({ onArticleClick }) {
   }, [activeTab, filterCategory])
 
   const fetchArticles = async (reset = false) => {
+    if (!reset && loadingMore) return
+
+    const requestOffset = reset ? 0 : offset
+
     try {
       if (reset) setLoading(true)
       else setLoadingMore(true)
@@ -459,16 +458,21 @@ export default function ArticlesListPage({ onArticleClick }) {
       params.append('contentType', activeTab)
       if (filterCategory !== 'all') params.append('category', filterCategory)
       params.append('limit', LIMIT)
-      params.append('offset', reset ? 0 : offset)
+      params.append('offset', requestOffset)
 
       const res = await fetch(`/api/articles?${params}`)
       const data = await res.json()
 
       if (res.ok) {
         const newArticles = data.articles || []
-        setArticles((prev) => (reset ? newArticles : [...prev, ...newArticles]))
-        setHasMore(offset + LIMIT < data.total)
-        setOffset((prev) => prev + LIMIT)
+        setArticles((prev) => {
+          const merged = reset ? newArticles : [...prev, ...newArticles]
+          return Array.from(
+            new Map(merged.map((article) => [article.id, article])).values(),
+          )
+        })
+        setHasMore(requestOffset + LIMIT < data.total)
+        setOffset(requestOffset + LIMIT)
       }
     } catch (e) {
       console.error('Erreur:', e)
