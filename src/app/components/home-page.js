@@ -104,13 +104,13 @@ const getModelIcon = (icon) => {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
 
-              <Link
+              {/* <Link
                 href="/maitres"
                 className="group inline-flex items-center space-x-2 px-8 py-4 bg-orange-50 text-orange-800 border border-orange-200 rounded-lg hover:bg-orange-100 transition-all duration-200"
               >
                 <span className="font-medium">Découvrir nos maîtres</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </Link> */}
 
               <Link
                 href="/datasets"
