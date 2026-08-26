@@ -500,6 +500,144 @@ function getActionDescription(action) {
   return descriptions[action] || action
 }
 
+async function updateBadgesAfterPoints(userId, gamification) {
+  const existingBadges = await prisma.userBadge.findMany({
+    where: { userId },
+  })
+  const newBadgeIds = await checkAndAwardBadges(
+    {
+      totalPoints: gamification.totalPoints,
+      maxStreak: gamification.maxStreak,
+    },
+    existingBadges,
+  )
+
+  if (newBadgeIds.length > 0) {
+    await prisma.userBadge.createMany({
+      data: newBadgeIds.map((badge) => ({
+        userId,
+        gamificationId: gamification.id,
+        badge,
+      })),
+      skipDuplicates: true,
+    })
+  }
+
+  return BADGES_CONFIG.filter((badge) => newBadgeIds.includes(badge.id))
+}
+
+export async function awardExternalPoints(userId, points, description, adminId, adminNote) {
+  if (!Number.isInteger(points) || points <= 0) {
+    throw new Error('Le nombre de points doit être un entier positif')
+  }
+
+  let gamification = await prisma.userGamification.findUnique({
+    where: { userId },
+  })
+
+  if (!gamification) {
+    gamification = await prisma.userGamification.create({
+      data: { userId },
+    })
+  }
+
+  const newTotalPoints = gamification.totalPoints + points
+  const updatedGamification = await prisma.userGamification.update({
+    where: { userId },
+    data: {
+      points: gamification.points + points,
+      totalPoints: newTotalPoints,
+      level: calculateLevel(newTotalPoints).level,
+    },
+  })
+
+  await prisma.pointTransaction.create({
+    data: {
+      userId,
+      gamificationId: updatedGamification.id,
+      action: 'external_contribution',
+      points,
+      description: description || 'Contribution externe reconnue',
+      source: 'externe',
+      adminNote: adminNote || null,
+      validatedBy: adminId,
+    },
+  })
+
+  const newBadges = await updateBadgesAfterPoints(userId, updatedGamification)
+
+  return {
+    pointsEarned: points,
+    totalPoints: newTotalPoints,
+    level: calculateLevel(newTotalPoints),
+    newBadges,
+  }
+}
+
+export async function removeExternalPoints(userId, points, description, adminId, adminNote) {
+  if (!Number.isInteger(points) || points <= 0) {
+    throw new Error('Le nombre de points à retirer doit être un entier positif')
+  }
+
+  const [gamification, externalTotal] = await Promise.all([
+    prisma.userGamification.findUnique({ where: { userId } }),
+    prisma.pointTransaction.aggregate({
+      where: { userId, source: 'externe' },
+      _sum: { points: true },
+    }),
+  ])
+
+  const availableExternalPoints = externalTotal._sum.points || 0
+  if (!gamification || points > availableExternalPoints) {
+    throw new Error(
+      `Impossible de retirer ${points} points : seulement ${availableExternalPoints} points externes sont disponibles`,
+    )
+  }
+
+  const newTotalPoints = gamification.totalPoints - points
+  const updatedGamification = await prisma.userGamification.update({
+    where: { userId },
+    data: {
+      points: Math.max(gamification.points - points, 0),
+      totalPoints: newTotalPoints,
+      level: calculateLevel(newTotalPoints).level,
+    },
+  })
+
+  await prisma.pointTransaction.create({
+    data: {
+      userId,
+      gamificationId: updatedGamification.id,
+      action: 'external_contribution_correction',
+      points: -points,
+      description: description || 'Correction de contribution externe',
+      source: 'externe',
+      adminNote: adminNote || null,
+      validatedBy: adminId,
+    },
+  })
+
+  const thresholdBadges = BADGES_CONFIG.filter((badge) =>
+    ['first_contribution', 'debutant', 'actif', 'expert', 'maitre'].includes(badge.id),
+  )
+  const badgesToRemove = thresholdBadges
+    .filter((badge) => !badge.check({ totalPoints: newTotalPoints, maxStreak: updatedGamification.maxStreak }))
+    .map((badge) => badge.id)
+
+  if (badgesToRemove.length > 0) {
+    await prisma.userBadge.deleteMany({
+      where: { userId, badge: { in: badgesToRemove } },
+    })
+  }
+
+  return {
+    pointsRemoved: points,
+    totalPoints: newTotalPoints,
+    level: calculateLevel(newTotalPoints),
+    removedBadges: badgesToRemove,
+  }
+}
+
 // ─── Fonction principale ───────────────────────────────────
 export async function awardPoints(userId, action, refId = null) {
   const basePoints = POINTS_CONFIG[action]
@@ -577,23 +715,7 @@ export async function awardPoints(userId, action, refId = null) {
   }
 
   // ✅ 7. Badges
-  const newBadgeIds = await checkAndAwardBadges(
-    { totalPoints: newTotalPoints, maxStreak: newMaxStreak },
-    updatedGamification.badges,
-  )
-
-  if (newBadgeIds.length > 0) {
-    await prisma.userBadge.createMany({
-      data: newBadgeIds.map((badge) => ({
-        userId,
-        gamificationId: updatedGamification.id,
-        badge,
-      })),
-      skipDuplicates: true,
-    })
-  }
-
-  const newBadges = BADGES_CONFIG.filter((b) => newBadgeIds.includes(b.id))
+  const newBadges = await updateBadgesAfterPoints(userId, updatedGamification)
 
   return {
     pointsEarned,

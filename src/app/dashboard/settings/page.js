@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Zap,
   Shield,
+  Camera,
 } from 'lucide-react'
 
 export default function SettingsPage() {
@@ -104,6 +105,7 @@ const handleDeleteAccount = async () => {
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
+    image: '',
     bio: '',
     location: '',
     website: '',
@@ -143,6 +145,7 @@ const handleDeleteAccount = async () => {
         setProfileData({
           name: data.user?.name || '',
           email: data.user?.email || '',
+          image: data.user?.image || '',
           bio: data.profil?.bio || '',
           location: data.profil?.location || '',
           website: data.profil?.website || '',
@@ -230,6 +233,41 @@ const handleDeleteAccount = async () => {
     }
   }
 
+  const handleProfileImageChange = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setError('Veuillez sélectionner une image')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image trop lourde (maximum 5 Mo)')
+      return
+    }
+
+    try {
+      setSaving(true)
+      setError(null)
+      const formData = new FormData()
+      formData.append('file', file)
+      const response = await fetch('/api/user/profile/image', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || "Erreur lors de l'upload")
+      setProfileData((current) => ({ ...current, image: data.image }))
+      await updateSession({ ...session, user: { ...session.user, image: data.image } })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (uploadError) {
+      setError(uploadError.message)
+    } finally {
+      setSaving(false)
+      event.target.value = ''
+    }
+  }
+
   const tabs = [
     { id: 'profile', label: 'Profil', icon: User },
     { id: 'preferences', label: 'Préférences', icon: Globe },
@@ -249,6 +287,20 @@ const handleDeleteAccount = async () => {
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Informations personnelles
               </h3>
+              <div className="mb-6 flex items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-blue-100 text-2xl font-bold text-blue-600">
+                  {profileData.image ? <img src={profileData.image} alt="Photo de profil" className="h-full w-full object-cover" /> : (profileData.name?.[0] || 'K').toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Photo de profil</p>
+                  <p className="mt-1 text-xs text-gray-500">JPG, PNG ou WebP · 5 Mo maximum</p>
+                  <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    <Camera className="h-4 w-4" />
+                    <span>Choisir une photo</span>
+                    <input type="file" accept="image/*" onChange={handleProfileImageChange} className="hidden" />
+                  </label>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

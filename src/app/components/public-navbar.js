@@ -16,6 +16,7 @@ import {
   Languages,
   Mic,
   Flame,
+  Crown,
 } from 'lucide-react'
 
 export default function PublicNavbar() {
@@ -44,6 +45,7 @@ export default function PublicNavbar() {
   const navLinks = [
     { href: '/models', label: 'Modèles' },
     { href: '/datasets', label: 'Datasets' },
+    { href: '/maitres', label: 'Maîtres du shikomori' },
     { href: '/tarifs', label: 'Tarifs' },
     { href: '/docs', label: 'Documentation' },
     { href: '/blog', label: 'Blog' },

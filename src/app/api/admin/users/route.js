@@ -44,6 +44,11 @@ export async function GET(req) {
             translations: true,
           },
         },
+        userGamification: {
+          select: {
+            totalPoints: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     })

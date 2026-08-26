@@ -12,6 +12,8 @@ import {
   Calendar,
   Filter,
   Download,
+  Coins,
+  X,
 } from 'lucide-react'
 
 export default function UsersManagement() {
@@ -21,6 +23,16 @@ export default function UsersManagement() {
   const [filterRole, setFilterRole] = useState('all')
   const [showModal, setShowModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+  const [pointsUser, setPointsUser] = useState(null)
+  const [pointsOperation, setPointsOperation] = useState('add')
+  const [pointsForm, setPointsForm] = useState({ points: '', description: '', adminNote: '' })
+  const [savingPoints, setSavingPoints] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  const showToast = (message, type = 'error') => {
+    setToast({ message, type })
+    window.setTimeout(() => setToast(null), 5000)
+  }
 
   useEffect(() => {
     fetchUsers()
@@ -81,6 +93,50 @@ export default function UsersManagement() {
     }
   }
 
+  const handleAddExternalPoints = async (event) => {
+    event.preventDefault()
+    setSavingPoints(true)
+
+    try {
+      const response = await fetch(
+        `/api/admin/users/${pointsUser.id}/external-points`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...pointsForm, operation: pointsOperation }),
+        },
+      )
+      const data = await response.json()
+
+      if (!response.ok) throw new Error(data.message || 'Erreur serveur')
+
+      setUsers((currentUsers) =>
+        currentUsers.map((user) =>
+          user.id === pointsUser.id
+            ? {
+                ...user,
+                userGamification: {
+                  totalPoints: data.result.totalPoints,
+                },
+              }
+            : user,
+        ),
+      )
+      setPointsUser(null)
+      setPointsForm({ points: '', description: '', adminNote: '' })
+      showToast(
+        pointsOperation === 'remove'
+          ? 'Points externes retirés avec succès'
+          : 'Points externes ajoutés avec succès',
+        'success',
+      )
+    } catch (error) {
+      showToast(error.message || 'Impossible de modifier les points externes')
+    } finally {
+      setSavingPoints(false)
+    }
+  }
+
   const filteredUsers = users.filter(
     (user) =>
       user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -125,6 +181,27 @@ export default function UsersManagement() {
 
   return (
     <div>
+      {toast && (
+        <div
+          role="alert"
+          className={`fixed right-4 top-4 z-[60] flex max-w-sm items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg ${
+            toast.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-800'
+              : 'border-red-200 bg-red-50 text-red-800'
+          }`}
+        >
+          <span className="font-semibold">{toast.type === 'success' ? 'Succès' : 'Action impossible'}</span>
+          <span>{toast.message}</span>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            className="ml-auto text-current opacity-60 hover:opacity-100"
+            aria-label="Fermer la notification"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -198,6 +275,9 @@ export default function UsersManagement() {
                     Inscription
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Points
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -259,6 +339,9 @@ export default function UsersManagement() {
                         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">
+                      {user.userGamification?.totalPoints || 0} pts
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
@@ -267,6 +350,13 @@ export default function UsersManagement() {
                           title="Modifier"
                         >
                           <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => { setPointsUser(user); setPointsOperation('add') }}
+                          className="text-green-600 hover:text-green-900 p-2 hover:bg-green-50 rounded-lg transition-colors"
+                          title="Ajouter des points externes"
+                        >
+                          <Coins className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteUser(user.id)}
@@ -282,6 +372,96 @@ export default function UsersManagement() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {pointsUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <form
+            onSubmit={handleAddExternalPoints}
+            className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {pointsOperation === 'remove' ? 'Corriger des points externes' : 'Ajouter une contribution externe'}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {pointsUser.name || pointsUser.email} ·{' '}
+                  {pointsUser.userGamification?.totalPoints || 0} points actuels
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPointsUser(null)}
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                title="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">
+                {pointsOperation === 'remove' ? 'Points à retirer' : 'Points à ajouter'}
+                <div className="mt-1 flex gap-2">
+                <button type="button" onClick={() => setPointsOperation('add')} className={`rounded-lg border px-3 py-2 text-sm ${pointsOperation === 'add' ? 'border-green-600 bg-green-50 text-green-700' : 'border-gray-300 text-gray-600'}`}>Ajouter</button>
+                <button type="button" onClick={() => setPointsOperation('remove')} className={`rounded-lg border px-3 py-2 text-sm ${pointsOperation === 'remove' ? 'border-red-600 bg-red-50 text-red-700' : 'border-gray-300 text-gray-600'}`}>Retirer</button>
+                </div>
+                <input
+                  type="number"
+                  min="1"
+                  max="100000"
+                  required
+                  value={pointsForm.points}
+                  onChange={(event) =>
+                    setPointsForm({ ...pointsForm, points: event.target.value })
+                  }
+                  className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2"
+                />
+              </label>
+              <label className="block text-sm font-medium text-gray-700">
+                Description obligatoire
+                <input
+                  type="text"
+                  required
+                  value={pointsForm.description}
+                  onChange={(event) =>
+                    setPointsForm({ ...pointsForm, description: event.target.value })
+                  }
+                  placeholder="Ex. Traduction de 100 phrases"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                />
+              </label>
+              <label className="block text-sm font-medium text-gray-700">
+                Note interne
+                <textarea
+                  value={pointsForm.adminNote}
+                  onChange={(event) =>
+                    setPointsForm({ ...pointsForm, adminNote: event.target.value })
+                  }
+                  placeholder="Détails utiles pour l’équipe"
+                  rows="3"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                />
+              </label>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setPointsUser(null)}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={savingPoints}
+                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+              >
+                {savingPoints ? 'Enregistrement...' : pointsOperation === 'remove' ? 'Retirer les points' : 'Ajouter les points'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

@@ -63,7 +63,7 @@ export async function PUT(req) {
     const userId = parseInt(session.user.id)
     const body = await req.json()
 
-    const { name, bio, location, website, phone, status } = body
+    const { name, bio, location, website, phone, status, publicSlug } = body
 
     // Mettre à jour le nom de l'utilisateur
     const updateUserData = {}
@@ -83,6 +83,7 @@ export async function PUT(req) {
     if (website !== undefined) profilData.website = website
     if (phone !== undefined) profilData.phone = phone
     if (status !== undefined) profilData.status = status
+    if (publicSlug !== undefined) profilData.publicSlug = publicSlug || null
 
     const profil = await prisma.profil.upsert({
       where: { userId },

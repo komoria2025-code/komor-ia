@@ -129,6 +129,7 @@ model Profil {
   phone     String?
   status    ProfilStatus @default(private)
   userId    Int          @unique @map("user_id")
+  publicSlug String?     @unique @map("public_slug")
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
 
@@ -631,6 +632,9 @@ model PointTransaction {
   points         Int
   description    String?  @db.VarChar(255)
   refId          Int?     @map("ref_id") // ID de la traduction ou recording
+  source         String   @default("site") // site ou externe
+  adminNote      String?  @map("admin_note") @db.Text
+  validatedBy    Int?     @map("validated_by")
   createdAt      DateTime @default(now()) @map("created_at")
 
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
