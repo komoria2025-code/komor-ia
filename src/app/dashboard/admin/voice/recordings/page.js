@@ -10,10 +10,33 @@ import {
   Calendar,
   Clock,
   Mic,
+  Users,
+  FileText,
+  Timer,
+  MapPin,
+  BarChart3,
 } from 'lucide-react'
+
+const emptyStats = {
+  total: 0,
+  duration: 0,
+  contributors: 0,
+  phrases: 0,
+  nativeSpeakers: 0,
+  completion: {},
+  breakdowns: {},
+}
+
+const formatDuration = (seconds) => {
+  if (!seconds) return '0 min'
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.round(seconds % 60)
+  return `${minutes} min ${remainingSeconds}s`
+}
 
 export default function AdminVoiceRecordings() {
   const [recordings, setRecordings] = useState([])
+  const [stats, setStats] = useState(emptyStats)
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState('pending')
   const [playingId, setPlayingId] = useState(null)
@@ -33,6 +56,7 @@ export default function AdminVoiceRecordings() {
       )
       const data = await res.json()
       setRecordings(data.recordings || [])
+      setStats(data.stats || emptyStats)
     } catch (e) {
       console.error(e)
     } finally {
@@ -67,6 +91,10 @@ export default function AdminVoiceRecordings() {
     age26_35: '26-35',
     age36_50: '36-50',
     plus50: '> 50',
+    shingazidja: 'Shingazidja',
+    shindzuani: 'Shindzuani',
+    shimwali: 'Shimwali',
+    shimaore: 'Shimaore',
     urbain: 'Urbain',
     rural: 'Rural',
     grande_comore: 'Grande Comore',
@@ -74,6 +102,38 @@ export default function AdminVoiceRecordings() {
     moheli: 'Mohéli',
     mayotte: 'Mayotte',
     diaspora: 'Diaspora',
+    non_renseigne: 'Non renseigné',
+  }
+
+  const renderBreakdown = (title, field, color) => {
+    const items = stats.breakdowns?.[field] || []
+    const max = Math.max(...items.map((item) => item.count), 1)
+
+    return (
+      <div className="rounded-xl border border-gray-200 bg-white p-4">
+        <h3 className="mb-3 text-sm font-semibold text-gray-900">{title}</h3>
+        {items.length === 0 ? (
+          <p className="text-sm text-gray-400">Aucune donnée</p>
+        ) : (
+          <div className="space-y-3">
+            {items.map((item) => (
+              <div key={item.value}>
+                <div className="mb-1 flex justify-between gap-3 text-xs text-gray-600">
+                  <span>{metaLabels[item.value] || item.value}</span>
+                  <span className="font-semibold text-gray-900">{item.count}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    className={`h-full rounded-full ${color}`}
+                    style={{ width: `${(item.count / max) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -86,6 +146,65 @@ export default function AdminVoiceRecordings() {
           {recordings.length} enregistrement(s)
         </p>
       </div>
+
+      {/* Statistiques de la sélection courante */}
+      <section className="mb-6">
+        <div className="mb-3 flex items-center gap-2">
+          <BarChart3 className="h-5 w-5 text-blue-600" />
+          <h2 className="text-lg font-semibold text-gray-900">
+            Statistiques des contributions
+          </h2>
+        </div>
+        <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-5">
+          {[
+            { label: 'Enregistrements', value: stats.total, icon: Mic },
+            { label: 'Contributeurs', value: stats.contributors, icon: Users },
+            { label: 'Phrases couvertes', value: stats.phrases, icon: FileText },
+            { label: 'Durée cumulée', value: formatDuration(stats.duration), icon: Timer },
+            {
+              label: 'Locuteurs natifs',
+              value: `${stats.nativeSpeakers}/${stats.total}`,
+              icon: Users,
+            },
+          ].map(({ label, value, icon: Icon }) => (
+            <div key={label} className="rounded-xl border border-gray-200 bg-white p-4">
+              <Icon className="mb-2 h-5 w-5 text-blue-600" />
+              <p className="text-xl font-bold text-gray-900">{value}</p>
+              <p className="text-xs text-gray-500">{label}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4">
+          <div className="mb-2 flex justify-between text-sm">
+            <span className="font-medium text-gray-700">Métadonnées renseignées</span>
+            <span className="text-gray-500">
+              {stats.total
+                ? `${Math.round(((stats.completion?.trancheAge || 0) / stats.total) * 100)} % pour l’âge`
+                : 'Aucune contribution'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-xs text-gray-600 md:grid-cols-4">
+            {[
+              ['Âge', stats.completion?.trancheAge],
+              ['Genre', stats.completion?.genre],
+              ['Île', stats.completion?.ile],
+              ['Zone', stats.completion?.zone],
+            ].map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between rounded bg-gray-50 px-3 py-2">
+                <span>{label}</span>
+                <strong className="text-gray-900">{value || 0}/{stats.total}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {renderBreakdown('Âges', 'trancheAge', 'bg-purple-500')}
+          {renderBreakdown('Genres', 'genre', 'bg-blue-500')}
+          {renderBreakdown('Îles', 'ile', 'bg-green-500')}
+          {renderBreakdown('Zones', 'zone', 'bg-orange-500')}
+          {renderBreakdown('Dialectes', 'dialecte', 'bg-yellow-500')}
+        </div>
+      </section>
 
       {/* Filtres */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex gap-3">
