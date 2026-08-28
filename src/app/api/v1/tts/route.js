@@ -144,6 +144,10 @@ export async function POST(req) {
 
   const responseTime = Date.now() - start
   const statusCode   = ttsRes.ok ? 200 : ttsRes.status
+  const ttsModel = await prisma.modele.findFirst({
+    where: { OR: [{ slug: 'tts' }, { endpoint: '/api/v1/tts' }] },
+    select: { id: true },
+  })
 
   // ── Logger ───────────────────────────────────────────
   await prisma.usageLog.create({
@@ -153,8 +157,9 @@ export async function POST(req) {
       statusCode,
       responseTime,
       userId:       session?.user?.id ? parseInt(session.user.id) : null,
+      modeleId:     ttsModel?.id || null,
       ipAddress:    ip,
-      metadata:     { chars: texte.trim().length, role, source: 'public' },
+      metadata:     { chars: texte.trim().length, role, source: 'public', modelName: 'TTS' },
     },
   })
 

@@ -112,7 +112,8 @@ export async function POST(req) {
           method:       'POST',
           statusCode,
           responseTime,
-          metadata:     { chars: texte.trim().length, source: 'api_key' },
+          modeleId:     apiKey.modeleId,
+          metadata:     { chars: texte.trim().length, source: 'api_key', modelName: apiKey.modele?.name || 'TTS' },
         },
       }),
       prisma.apiKey.update({

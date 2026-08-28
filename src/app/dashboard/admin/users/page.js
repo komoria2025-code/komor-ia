@@ -14,6 +14,8 @@ import {
   Download,
   Coins,
   X,
+  Eye,
+  Activity,
 } from 'lucide-react'
 
 export default function UsersManagement() {
@@ -28,6 +30,8 @@ export default function UsersManagement() {
   const [pointsForm, setPointsForm] = useState({ points: '', description: '', adminNote: '' })
   const [savingPoints, setSavingPoints] = useState(false)
   const [toast, setToast] = useState(null)
+  const [detailsUser, setDetailsUser] = useState(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
 
   const showToast = (message, type = 'error') => {
     setToast({ message, type })
@@ -134,6 +138,22 @@ export default function UsersManagement() {
       showToast(error.message || 'Impossible de modifier les points externes')
     } finally {
       setSavingPoints(false)
+    }
+  }
+
+  const handleViewDetails = async (user) => {
+    setDetailsLoading(true)
+    setDetailsUser({ ...user, loading: true })
+    try {
+      const response = await fetch(`/api/admin/users/${user.id}`)
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || 'Impossible de charger les détails')
+      setDetailsUser(data.user)
+    } catch (error) {
+      setDetailsUser(null)
+      showToast(error.message)
+    } finally {
+      setDetailsLoading(false)
     }
   }
 
@@ -345,6 +365,13 @@ export default function UsersManagement() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2">
                         <button
+                          onClick={() => handleViewDetails(user)}
+                          className="text-gray-600 hover:text-gray-900 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          title="Voir les détails et l'utilisation"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => setSelectedUser(user)}
                           className="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Modifier"
@@ -462,6 +489,73 @@ export default function UsersManagement() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {detailsUser && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4">
+          <div className="mx-auto my-8 w-full max-w-5xl rounded-xl bg-white shadow-xl">
+            <div className="flex items-start justify-between border-b border-gray-200 p-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Détails utilisateur</h2>
+                <p className="mt-1 text-sm text-gray-500">{detailsUser.name || 'Sans nom'} · {detailsUser.email}</p>
+              </div>
+              <button type="button" onClick={() => setDetailsUser(null)} className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Fermer">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {detailsLoading ? (
+              <div className="p-12 text-center text-gray-500">Chargement des informations...</div>
+            ) : (
+              <div className="space-y-6 p-6">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    ['Requêtes', detailsUser.usageSummary.requests],
+                    ['Tokens', detailsUser.usageSummary.tokens.toLocaleString('fr-FR')],
+                    ['Coût estimé', `${detailsUser.usageSummary.cost.toFixed(4)} €`],
+                    ['Clés API', detailsUser._count.apiKeys],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                      <p className="text-xs font-medium uppercase text-gray-500">{label}</p>
+                      <p className="mt-1 text-xl font-bold text-gray-900">{value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div>
+                    <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900"><Activity className="h-4 w-4" /> Utilisation par modèle</h3>
+                    <div className="overflow-hidden rounded-lg border border-gray-200">
+                      <table className="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead className="bg-gray-50"><tr><th className="px-4 py-3 text-left font-medium text-gray-500">Modèle</th><th className="px-4 py-3 text-right font-medium text-gray-500">Requêtes</th><th className="px-4 py-3 text-right font-medium text-gray-500">Tokens</th></tr></thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          {detailsUser.usageSummary.byModel.map((model) => <tr key={model.slug || model.name}><td className="px-4 py-3 text-gray-900">{model.name}</td><td className="px-4 py-3 text-right">{model.requests}</td><td className="px-4 py-3 text-right">{model.tokens.toLocaleString('fr-FR')}</td></tr>)}
+                          {!detailsUser.usageSummary.byModel.length && <tr><td colSpan="3" className="px-4 py-6 text-center text-gray-500">Aucune utilisation enregistrée.</td></tr>}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <h3 className="mb-3 font-semibold text-gray-900">Informations du compte</h3>
+                    <p><span className="text-gray-500">Rôle :</span> {getRoleLabel(detailsUser.role)}</p>
+                    <p><span className="text-gray-500">Inscription :</span> {new Date(detailsUser.createdAt).toLocaleString('fr-FR')}</p>
+                    <p><span className="text-gray-500">Email vérifié :</span> {detailsUser.emailVerified ? 'Oui' : 'Non'}</p>
+                    <p><span className="text-gray-500">Traductions :</span> {detailsUser._count.translations}</p>
+                    {detailsUser.profil?.location && <p><span className="text-gray-500">Localisation :</span> {detailsUser.profil.location}</p>}
+                    {detailsUser.profil?.website && <p><span className="text-gray-500">Site web :</span> {detailsUser.profil.website}</p>}
+                    {detailsUser.profil?.bio && <p><span className="text-gray-500">Bio :</span> {detailsUser.profil.bio}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="mb-3 font-semibold text-gray-900">Dernières requêtes</h3>
+                  <div className="max-h-64 overflow-auto rounded-lg border border-gray-200">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm"><thead className="sticky top-0 bg-gray-50"><tr><th className="px-4 py-3 text-left font-medium text-gray-500">Date</th><th className="px-4 py-3 text-left font-medium text-gray-500">Modèle</th><th className="px-4 py-3 text-left font-medium text-gray-500">Endpoint</th><th className="px-4 py-3 text-right font-medium text-gray-500">Statut</th></tr></thead><tbody className="divide-y divide-gray-200">{detailsUser.usageLogs.map((log) => <tr key={log.id}><td className="whitespace-nowrap px-4 py-3 text-gray-500">{new Date(log.createdAt).toLocaleString('fr-FR')}</td><td className="px-4 py-3">{log.displayModelName || log.modele?.name || 'Inconnu'}</td><td className="max-w-xs truncate px-4 py-3">{log.endpoint}</td><td className={`px-4 py-3 text-right font-medium ${log.statusCode >= 400 ? 'text-red-600' : 'text-green-600'}`}>{log.statusCode}</td></tr>)}</tbody></table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
