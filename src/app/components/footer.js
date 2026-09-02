@@ -38,6 +38,12 @@ export default function Footer() {
               Startup d'intelligence artificielle basée aux Comores, développant
               des solutions IA innovantes pour l'Afrique.
             </p>
+            <Link
+              href="/contributeurs"
+              className="inline-flex items-center text-sm font-medium text-gray-300 hover:text-white transition-colors"
+            >
+              Découvrir nos contributeurs →
+            </Link>
             <div className="flex space-x-3">
               <a
                 href="https://x.com/komor_ia?s=20"
@@ -151,6 +157,14 @@ export default function Footer() {
                   className="hover:text-white transition-colors"
                 >
                   À propos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contributeurs"
+                  className="hover:text-white transition-colors"
+                >
+                  Plaque des contributeurs
                 </Link>
               </li>
               <li>
